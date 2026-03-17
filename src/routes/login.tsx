@@ -1,0 +1,115 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { parseServerError } from "@/lib/utils";
+import { LoginSchema } from "@/modules/auth/schema";
+import { loginFn } from "@/modules/auth/serverFn";
+
+export const Route = createFileRoute("/login")({
+	component: LoginPage,
+});
+
+type FieldErrors = Partial<Record<"email" | "password", string>>;
+
+function LoginPage() {
+	const navigate = useNavigate();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+	const [isLoading, setIsLoading] = useState(false);
+
+	async function handleLogin(e: React.SubmitEvent<HTMLFormElement>) {
+		e.preventDefault();
+		setFieldErrors({});
+
+		const result = LoginSchema.safeParse({ email, password });
+		if (!result.success) {
+			const errors: FieldErrors = {};
+			for (const issue of result.error.issues) {
+				const field = issue.path[0] as keyof FieldErrors;
+				if (!errors[field]) errors[field] = issue.message;
+			}
+			setFieldErrors(errors);
+			return;
+		}
+
+		setIsLoading(true);
+		try {
+			await loginFn({ data: { email, password } });
+			navigate({ to: "/dashboard" });
+		} catch (error) {
+			toast.error(parseServerError(error));
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
+	return (
+		<div className="flex min-h-screen items-center justify-center bg-background p-4">
+			<form
+				onSubmit={handleLogin}
+				className="w-full max-w-sm space-y-4 rounded-lg border p-6 shadow-sm"
+			>
+				<div className="space-y-2">
+					<h1 className="text-2xl font-semibold">Login</h1>
+					<p className="text-sm text-muted-foreground">
+						Enter your credentials to access your account
+					</p>
+				</div>
+
+				<Field data-invalid={!!fieldErrors.email}>
+					<FieldLabel htmlFor="email">Email</FieldLabel>
+					<Input
+						id="email"
+						type="email"
+						placeholder="you@example.com"
+						value={email}
+						onChange={(e) => {
+							setEmail(e.target.value);
+							setFieldErrors((prev) => ({ ...prev, email: undefined }));
+						}}
+					/>
+					<FieldError
+						errors={fieldErrors.email ? [{ message: fieldErrors.email }] : []}
+					/>
+				</Field>
+
+				<Field data-invalid={!!fieldErrors.password}>
+					<FieldLabel htmlFor="password">Password</FieldLabel>
+					<Input
+						id="password"
+						type="password"
+						placeholder="Enter your password"
+						value={password}
+						onChange={(e) => {
+							setPassword(e.target.value);
+							setFieldErrors((prev) => ({ ...prev, password: undefined }));
+						}}
+					/>
+					<FieldError
+						errors={
+							fieldErrors.password ? [{ message: fieldErrors.password }] : []
+						}
+					/>
+				</Field>
+
+				<Button type="submit" className="w-full" disabled={isLoading}>
+					{isLoading ? "Logging in..." : "Login"}
+				</Button>
+
+				<p className="text-center text-sm text-muted-foreground">
+					Don't have an account?{" "}
+					<Link
+						to="/register"
+						className="text-foreground underline underline-offset-4 hover:text-primary"
+					>
+						Sign up
+					</Link>
+				</p>
+			</form>
+		</div>
+	);
+}

@@ -1,0 +1,95 @@
+// KosManager - Database Schema
+// Paste this into https://dbdiagram.io
+
+// Enums
+
+Enum plan_type {
+  free
+  paid
+}
+
+Enum room_status {
+  vacant
+  occupied
+}
+
+Enum tenant_status {
+  active
+  inactive
+}
+
+Enum payment_status {
+  paid
+  unpaid
+  partial
+}
+
+// Tables
+
+Table owners {
+  id             uuid        [pk]
+  email          varchar     [not null, unique]
+  password_hash  varchar     [not null]
+  plan           plan_type   [not null, default: 'free']
+  created_at     timestamp   [not null, default: `now()`]
+}
+
+Table properties {
+  id          uuid      [pk]
+  owner_id    uuid      [not null]
+  name        varchar   [not null]
+  address     varchar   [not null]
+  created_at  timestamp [not null, default: `now()`]
+}
+
+Table rooms {
+  id          uuid        [pk]
+  property_id uuid        [not null]
+  room_number varchar     [not null]
+  rent_price  integer     [not null]
+  status      room_status [not null, default: 'vacant']
+  created_at  timestamp   [not null, default: `now()`]
+
+  indexes {
+    (property_id, room_number) [unique, name: 'uq_room_number_per_property']
+  }
+
+  Note: 'Deletion blocked if status = occupied. Free plan: max 10 rooms per property.'
+}
+
+Table tenants {
+  id            uuid          [pk]
+  room_id       uuid          [not null]
+  name          varchar       [not null]
+  phone         varchar       [not null]
+  move_in_date  date          [not null]
+  move_out_date date
+  status        tenant_status [not null, default: 'active']
+  created_at    timestamp     [not null, default: `now()`]
+
+  Note: 'Soft delete only. Move-out sets status=inactive and records move_out_date. Only one active tenant per room at a time.'
+}
+
+Table payments {
+  id          uuid           [pk]
+  tenant_id   uuid           [not null]
+  month       varchar        [not null, note: 'Format: YYYY-MM']
+  amount_due  integer        [not null]
+  amount_paid integer        [not null, default: 0]
+  status      payment_status [not null, default: 'unpaid']
+  paid_at     timestamp
+  created_at  timestamp      [not null, default: `now()`]
+
+  indexes {
+    (tenant_id, month) [unique, name: 'uq_payment_per_tenant_per_month']
+  }
+
+  Note: 'Never hard-deleted. amount_due is a snapshot of rent_price at time of logging.'
+}
+
+// Relationships
+
+Ref: properties.owner_id > owners.id
+Ref: rooms.property_id > properties.id
+Ref: tenants.room_id > rooms.id
+Ref: payments.tenant_id > tenants.id

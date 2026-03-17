@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: mocktanstack-db
+    ports:
+      - "5440:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - mocktanstack_vol:/var/lib/postgresql/data
+
+volumes:
+  mocktanstack_vol:
