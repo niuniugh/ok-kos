@@ -1,5 +1,6 @@
 # ok-kos
 
+
 A fullstack boarding house (kos) management application built with TanStack Start, Prisma, PostgreSQL, and shadcn/ui.
 
 ## Stack
