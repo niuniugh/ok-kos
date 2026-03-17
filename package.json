@@ -73,8 +73,11 @@
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
+			"@prisma/engines",
+			"bcrypt",
 			"esbuild",
-			"lightningcss"
+			"lightningcss",
+			"prisma"
 		]
 	}
 }
