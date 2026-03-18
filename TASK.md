@@ -65,7 +65,6 @@ The boilerplate uses a `User` model with a `password` field. The new schema uses
 - [ ] Update `src/modules/auth/schema.ts`:
   - `RegisterSchema`: already has `name` field — no change needed
   - `LoginSchema`: no change needed
-- [ ] Update `src/modules/sessions/appSession.ts`: already has `name` in `UserData` interface — no change needed
 - [ ] Update `src/routes/register.tsx`: already has `name` input field — no change needed
 - [ ] Test: register a new account → confirm `owners` table has the new row with `name`, `email`, `passwordHash`, `plan`
 - [ ] Test: login → confirm session cookie is set with `{ id, email, name, plan }` and redirect to `/dashboard` works
