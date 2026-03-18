@@ -7,7 +7,7 @@ import { LoginSchema, RegisterSchema } from "./schema";
 export const loginFn = createServerFn({ method: "POST" })
 	.inputValidator(LoginSchema)
 	.handler(async ({ data }) => {
-		const user = await prisma.user.findUnique({
+		const user = await prisma.owner.findUnique({
 			where: { email: data.email },
 		});
 
@@ -15,7 +15,10 @@ export const loginFn = createServerFn({ method: "POST" })
 			throw new Error("Invalid email or password");
 		}
 
-		const isValidPassword = await bcrypt.compare(data.password, user.password);
+		const isValidPassword = await bcrypt.compare(
+			data.password,
+			user.passwordHash,
+		);
 
 		if (!isValidPassword) {
 			throw new Error("Invalid email or password");
@@ -26,6 +29,7 @@ export const loginFn = createServerFn({ method: "POST" })
 			id: user.id,
 			name: user.name,
 			email: user.email,
+			plan: user.plan,
 		});
 	});
 
@@ -37,7 +41,7 @@ export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
 export const registerFn = createServerFn({ method: "POST" })
 	.inputValidator(RegisterSchema)
 	.handler(async ({ data }) => {
-		const existingUser = await prisma.user.findUnique({
+		const existingUser = await prisma.owner.findUnique({
 			where: { email: data.email },
 		});
 
@@ -47,11 +51,11 @@ export const registerFn = createServerFn({ method: "POST" })
 
 		const hashedPassword = await bcrypt.hash(data.password, 10);
 
-		const user = await prisma.user.create({
+		const user = await prisma.owner.create({
 			data: {
 				email: data.email,
 				name: data.name,
-				password: hashedPassword,
+				passwordHash: hashedPassword,
 			},
 		});
 
@@ -60,5 +64,6 @@ export const registerFn = createServerFn({ method: "POST" })
 			id: user.id,
 			name: user.name,
 			email: user.email,
+			plan: user.plan,
 		});
 	});
