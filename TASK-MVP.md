@@ -1,21 +1,22 @@
-# TASK.md — KosManager MVP
+# TASK-2.md — MVP Implementation (After Boilerplate)
 
 ## Overview
 
+This file contains the remaining MVP tasks after the boilerplate (DB + Auth) is complete.
 Each member owns a full vertical slice: server functions (backend) + routes/UI (frontend).
 
 **Dependency order:**
 ```
-Member 1 (DB + Auth)
+Member 1 (Owner Profile + Navigation)
     ↓
 Member 2 (Property + Rooms)  ←→  Member 3 (Tenants + Payments)
     ↓                                    ↓
                     Member 4 (Dashboard + Reports)
 ```
 
-Member 1 must complete their DB migration tasks before Members 2, 3, and 4 can start.  
-Members 2 and 3 can work in parallel once Member 1 is done.  
-Member 4 can start building UI shells early but needs all other members' server functions to wire up data.
+Member 1 must complete their profile + navigation tasks before Member 4 can complete the sidebar.  
+Members 2 and 3 can work in parallel.  
+Member 4 depends on Members 2 and 3 completing their server functions for the dashboard.
 
 ---
 
@@ -26,85 +27,71 @@ Member 4 can start building UI shells early but needs all other members' server 
 - **DB access:** use the Prisma client from `src/lib/prisma.ts`
 - **Routes:** file-based via TanStack Router — add files under `src/routes/`
 - **UI components:** use existing shadcn/ui components from `src/components/ui/` — do not install new ones without discussion
-- **Error handling:** use `parseServerError()` from `src/lib/utils.ts` for displaying server errors in forms
+- **Error handling:** use `parseServerError()` from `@/lib/utils.ts` for displaying server errors in forms
 - **Toasts:** use `sonner` (`import { toast } from 'sonner'`)
 - **Styling:** Tailwind v4 utility classes only — no inline styles
 - **Linting:** run `pnpm lint:fix` before committing — Biome enforces tabs + double quotes
 
 ---
 
-## Member 1 — DB Migration + Auth Update
+## Member 1 — Owner Profile + Navigation
 
-**Domain:** Schema foundation, Owner model, updated auth flow  
-**Depends on:** Nothing — start immediately  
-**Others depend on:** Everyone waits for Task 1.1 before writing any DB code
-
----
-
-### Task 1.1 — Apply full Prisma schema migration
-
-**Why first:** All other members need the correct DB tables to exist before writing any server functions.
-
-- [ ] Copy the schema from `schema.md` into `prisma/schema.prisma` (replace the existing `User` model entirely)
-- [ ] Run `pnpm db:migrate` and name the migration `replace_user_with_full_schema`
-- [ ] Verify all 5 tables are created: `owners`, `properties`, `rooms`, `tenants`, `payments`
-- [ ] Verify all 4 enums are created: `PlanType`, `RoomStatus`, `TenantStatus`, `PaymentStatus`
-- [ ] Confirm `generated/prisma` client is regenerated and reflects the new models
-- [ ] Commit: `chore: apply full KosManager schema migration`
+**Domain:** Owner profile frontend, dashboard sidebar/nav layout  
+**Depends on:** Boilerplate (DB + Auth done)  
+**Difficulty:** Easy to Medium
 
 ---
 
-### Task 1.2 — Update auth server functions to use Owner model
+### Task 1.1 — Owner profile page frontend
 
-The boilerplate uses a `User` model with a `password` field. The new schema uses `Owner` with `passwordHash`, `name` (required), and `plan`. Auth server functions must be updated.
+**Difficulty:** Easy
 
-- [ ] Update `src/modules/auth/serverFn.ts`:
-  - `registerFn`: change `prisma.user` → `prisma.owner`, `password` → `passwordHash`, save `name` field, add `plan: 'free'` default, store `{ id, email, name, plan }` in session
-  - `loginFn`: change `prisma.user` → `prisma.owner`, `password` → `passwordHash`, add `name` to session data
-  - Session data: store `{ id, email, name, plan }`
-- [ ] Update `src/modules/auth/schema.ts`:
-  - `RegisterSchema`: already has `name` field — no change needed
-  - `LoginSchema`: no change needed
-- [ ] Update `src/routes/register.tsx`: already has `name` input field — no change needed
-- [ ] Test: register a new account → confirm `owners` table has the new row with `name`, `email`, `passwordHash`, `plan`
-- [ ] Test: login → confirm session cookie is set with `{ id, email, name, plan }` and redirect to `/dashboard` works
-- [ ] Commit: `fix: update auth to use Owner model with name field`
+Profile page backend is already done (Member 1 boilerplate). Now wire the frontend.
 
----
-
-### Task 1.3 — Owner profile page
-
-Route: `/dashboard/profile`
-
-**Server functions** (`src/modules/owner/serverFn.ts`):
-
-- [ ] `getOwnerFn` — reads the current owner from DB using session `id`
-- [ ] `updateOwnerFn` — updates `name` and `email` (password change is out of MVP scope)
-
-**Zod schema** (`src/modules/owner/schema.ts`):
-
-- [ ] `UpdateOwnerSchema` — `name` (optional), `email` (optional, valid email format)
-
-**Route + UI** (`src/routes/_dashboard/profile/index.tsx`):
-
+- [ ] Wire `src/routes/_dashboard/dashboard/profile/index.tsx` to use `getOwnerFn` for fetching owner data
+- [ ] Wire form submit to use `updateOwnerFn` for updating profile
 - [ ] Display current owner name, email, and plan badge (`free` / `paid`)
 - [ ] Edit form with name and email fields with save button
 - [ ] Show success toast on save
-- [ ] Add "Profile" link to the dashboard nav (coordinate placement with Member 4)
+- [ ] Test: profile page loads with correct data
+- [ ] Test: update name/email works and session syncs correctly
+
+---
+
+### Task 1.2 — Dashboard sidebar navigation
+
+**Difficulty:** Medium
+
+Build the app shell with sidebar navigation.
+
+- [ ] Add a `Sidebar` component using `src/components/ui/sidebar.tsx`
+- [ ] Sidebar nav links:
+  - Dashboard (`/dashboard`)
+  - Properties (`/dashboard/properties`)
+  - Tenants (`/dashboard/tenants`)
+  - Payments (`/dashboard/payments`)
+  - Reports (`/dashboard/reports`)
+  - Profile (`/dashboard/profile`) — bottom of sidebar
+- [ ] Logout button — bottom of sidebar (already exists, move here)
+- [ ] Show owner name, email, and plan badge (`free` / `paid`) in sidebar footer
+- [ ] Sidebar collapses to icon-only on mobile (`useIsMobile()`)
+- [ ] Main content area renders `<Outlet />`
 
 ---
 
 ## Member 2 — Property + Room Management
 
 **Domain:** Property CRUD, Room CRUD, freemium enforcement  
-**Depends on:** Task 1.1 (schema migration must be applied)  
-**Others depend on:** Member 3 needs rooms to exist for tenant assignment; Member 4 needs `getPropertiesFn` for the dashboard property selector
+**Depends on:** Boilerplate (DB + Auth done)  
+**Difficulty:** Medium
 
 ---
 
 ### Task 2.1 — Property server functions
 
 Create `src/modules/property/serverFn.ts` and `src/modules/property/schema.ts`.
+
+**Difficulty:** Medium
 
 **Zod schemas:**
 
@@ -122,6 +109,8 @@ Create `src/modules/property/serverFn.ts` and `src/modules/property/schema.ts`.
 ---
 
 ### Task 2.2 — Property pages
+
+**Difficulty:** Medium
 
 **List + create** (`src/routes/_dashboard/properties/index.tsx`):
 
@@ -143,6 +132,8 @@ Create `src/modules/property/serverFn.ts` and `src/modules/property/schema.ts`.
 
 Create `src/modules/room/serverFn.ts` and `src/modules/room/schema.ts`.
 
+**Difficulty:** Medium
+
 **Zod schemas:**
 
 - [ ] `CreateRoomSchema` — `propertyId` (UUID), `roomNumber` (required), `rentPrice` (positive integer)
@@ -160,7 +151,9 @@ Create `src/modules/room/serverFn.ts` and `src/modules/room/schema.ts`.
 
 ### Task 2.4 — Room UI components + pages
 
-**Rooms list** (rendered inside property detail page from Task 2.2):
+**Difficulty:** Medium
+
+Rooms list (rendered inside property detail page from Task 2.2):
 
 - [ ] Table with columns: Room Number, Rent Price, Status (`vacant` / `occupied` badge), Actions
 - [ ] "Add Room" button → `Dialog` with create form
@@ -174,7 +167,8 @@ Create `src/modules/room/serverFn.ts` and `src/modules/room/schema.ts`.
 ## Member 3 — Tenant Management + Payment Tracking
 
 **Domain:** Tenant CRUD, move-out flow, payment logging, payment status updates  
-**Depends on:** Task 1.1 (schema), Task 2.3 (rooms must exist to assign tenants)  
+**Depends on:** Boilerplate (DB + Auth done), Task 2.3 (rooms must exist to assign tenants)  
+**Difficulty:** Medium  
 **Parallel with:** Member 2
 
 ---
@@ -182,6 +176,8 @@ Create `src/modules/room/serverFn.ts` and `src/modules/room/schema.ts`.
 ### Task 3.1 — Tenant server functions
 
 Create `src/modules/tenant/serverFn.ts` and `src/modules/tenant/schema.ts`.
+
+**Difficulty:** Medium
 
 **Zod schemas:**
 
@@ -200,6 +196,8 @@ Create `src/modules/tenant/serverFn.ts` and `src/modules/tenant/schema.ts`.
 ---
 
 ### Task 3.2 — Tenant pages
+
+**Difficulty:** Medium
 
 **Tenants list** (`src/routes/_dashboard/tenants/index.tsx`):
 
@@ -221,6 +219,8 @@ Create `src/modules/tenant/serverFn.ts` and `src/modules/tenant/schema.ts`.
 
 Create `src/modules/payment/serverFn.ts` and `src/modules/payment/schema.ts`.
 
+**Difficulty:** Medium
+
 **Zod schemas:**
 
 - [ ] `CreatePaymentSchema` — `tenantId` (UUID), `month` (string matching `/^\d{4}-\d{2}$/`), `amountDue` (positive int), `amountPaid` (non-negative int), `status` (`paid` | `unpaid` | `partial`)
@@ -240,6 +240,8 @@ Create `src/modules/payment/serverFn.ts` and `src/modules/payment/schema.ts`.
 ---
 
 ### Task 3.4 — Payment UI components + pages
+
+**Difficulty:** Medium
 
 **Payments list** (`src/routes/_dashboard/payments/index.tsx`):
 
@@ -261,36 +263,17 @@ Create `src/modules/payment/serverFn.ts` and `src/modules/payment/schema.ts`.
 
 ---
 
-## Member 4 — Dashboard + Reports + Navigation
+## Member 4 — Dashboard + Reports
 
-**Domain:** Dashboard page, reports summary, sidebar/nav layout  
-**Depends on:** Task 1.1 (schema), Task 1.2 (session has `plan`); data wiring depends on Members 2 & 3 completing their server functions  
-**Strategy:** Build the layout and UI shells first with mock/placeholder data, wire real data last
-
----
-
-### Task 4.1 — Dashboard layout + sidebar navigation
-
-Replace the bare stub at `src/routes/_dashboard/dashboard/index.tsx` and build a proper app shell.
-
-**Layout** (`src/routes/_dashboard.tsx` — update the existing auth guard layout):
-
-- [ ] Add a `Sidebar` component using `src/components/ui/sidebar.tsx`
-- [ ] Sidebar nav links:
-  - Dashboard (`/dashboard`)
-  - Properties (`/dashboard/properties`)
-  - Tenants (`/dashboard/tenants`)
-  - Payments (`/dashboard/payments`)
-  - Reports (`/dashboard/reports`)
-  - Profile (`/dashboard/profile`) — bottom of sidebar
-  - Logout button — bottom of sidebar (already exists, move here)
-- [ ] Show owner name, email, and plan badge (`free` / `paid`) in sidebar footer
-- [ ] Sidebar collapses to icon-only on mobile (`useIsMobile()`)
-- [ ] Main content area renders `<Outlet />`
+**Domain:** Dashboard page, reports summary  
+**Depends on:** Boilerplate (DB + Auth done), Members 2 & 3 completing their server functions  
+**Difficulty:** Medium to Hard
 
 ---
 
-### Task 4.2 — Dashboard summary page
+### Task 4.1 — Dashboard summary page
+
+**Difficulty:** Hard
 
 Route: `/dashboard` (`src/routes/_dashboard/dashboard/index.tsx`)
 
@@ -315,7 +298,9 @@ Route: `/dashboard` (`src/routes/_dashboard/dashboard/index.tsx`)
 
 ---
 
-### Task 4.3 — Reports page
+### Task 4.2 — Reports page
+
+**Difficulty:** Hard
 
 Route: `/dashboard/reports` (`src/routes/_dashboard/reports/index.tsx`)
 
@@ -333,7 +318,9 @@ Route: `/dashboard/reports` (`src/routes/_dashboard/reports/index.tsx`)
 
 ---
 
-### Task 4.4 — Empty states + error boundaries
+### Task 4.3 — Empty states + error boundaries
+
+**Difficulty:** Easy
 
 - [ ] Create `src/components/empty-state.tsx` — reusable empty state component (icon + heading + subtext + optional CTA button); used across all list pages when there's no data
 - [ ] Add empty states to:
@@ -348,11 +335,10 @@ Route: `/dashboard/reports` (`src/routes/_dashboard/reports/index.tsx`)
 
 ## Shared / Cross-cutting
 
-These tasks don't belong to a single member — coordinate and assign as needed:
+These tasks are done **after all 4 members complete their tasks**:
 
-- [ ] **Seed script** — create `prisma/seed.ts` with sample data (1 owner, 1 property, 5 rooms, 3 active tenants, 3 months of payment records). Add `"prisma": { "seed": "tsx prisma/seed.ts" }` to `package.json`. Assign to **Member 1** since they own the schema.
-- [ ] **`DATABASE_URL` in `.env`** — confirm it's set correctly for the Docker Compose Postgres instance (`postgresql://postgres:postgres@localhost:5440/kosmanager`). Already in `.env` but verify after migration.
-- [ ] **Route tree regeneration** — `routeTree.gen.ts` is auto-generated by Vite on `pnpm dev`. Each member must run `pnpm dev` after adding new route files so the tree updates. Do not manually edit `routeTree.gen.ts`.
+- [ ] **Seed script** — create `prisma/seed.ts` with sample data (1 owner, 1 property, 5 rooms, 3 active tenants, 3 months of payment records). Add `"prisma": { "seed": "tsx prisma/seed.ts" }` to `package.json`. Run `pnpm db:seed` to populate the database with test data.
+- [ ] **Final integration test** — manually test the full flow: register → login → create property → add rooms → add tenants → log payments → view dashboard → view reports
 
 ---
 
