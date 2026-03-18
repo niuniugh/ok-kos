@@ -1,4 +1,4 @@
-# TASK.md — KosManager MVP
+# TASK.md — OK-KOS MVP
 
 ## Overview
 
