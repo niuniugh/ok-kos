@@ -56,20 +56,20 @@ Member 4 can start building UI shells early but needs all other members' server 
 
 ### Task 1.2 — Update auth server functions to use Owner model
 
-The boilerplate uses a `User` model with a `name` field and `password` field. The new schema uses `Owner` with `passwordHash` and `plan`. Auth server functions must be updated.
+The boilerplate uses a `User` model with a `password` field. The new schema uses `Owner` with `passwordHash`, `name` (required), and `plan`. Auth server functions must be updated.
 
 - [ ] Update `src/modules/auth/serverFn.ts`:
-  - `registerFn`: change `prisma.user` → `prisma.owner`, `password` → `passwordHash`, remove `name` field, remove `emailVerified` field, add `plan: 'free'` default
-  - `loginFn`: change `prisma.user` → `prisma.owner`, `password` → `passwordHash`
-  - Session data: store `{ id, email, plan }` (replace `name` with `plan`)
+  - `registerFn`: change `prisma.user` → `prisma.owner`, `password` → `passwordHash`, save `name` field, add `plan: 'free'` default, store `{ id, email, name, plan }` in session
+  - `loginFn`: change `prisma.user` → `prisma.owner`, `password` → `passwordHash`, add `name` to session data
+  - Session data: store `{ id, email, name, plan }`
 - [ ] Update `src/modules/auth/schema.ts`:
-  - `RegisterSchema`: remove `name` field (Owner has no `name`, only `email` + `password`)
+  - `RegisterSchema`: already has `name` field — no change needed
   - `LoginSchema`: no change needed
-- [ ] Update `src/modules/sessions/appSession.ts`: update session type to `{ id: string, email: string, plan: string }`
-- [ ] Update `src/routes/register.tsx`: remove the `name` input field from the form
-- [ ] Test: register a new account → confirm `owners` table has the new row with correct fields
-- [ ] Test: login → confirm session cookie is set and redirect to `/dashboard` works
-- [ ] Commit: `fix: update auth to use Owner model and new schema fields`
+- [ ] Update `src/modules/sessions/appSession.ts`: already has `name` in `UserData` interface — no change needed
+- [ ] Update `src/routes/register.tsx`: already has `name` input field — no change needed
+- [ ] Test: register a new account → confirm `owners` table has the new row with `name`, `email`, `passwordHash`, `plan`
+- [ ] Test: login → confirm session cookie is set with `{ id, email, name, plan }` and redirect to `/dashboard` works
+- [ ] Commit: `fix: update auth to use Owner model with name field`
 
 ---
 
@@ -80,16 +80,16 @@ Route: `/dashboard/profile`
 **Server functions** (`src/modules/owner/serverFn.ts`):
 
 - [ ] `getOwnerFn` — reads the current owner from DB using session `id`
-- [ ] `updateOwnerFn` — updates `email` only (password change is out of MVP scope)
+- [ ] `updateOwnerFn` — updates `name` and `email` (password change is out of MVP scope)
 
 **Zod schema** (`src/modules/owner/schema.ts`):
 
-- [ ] `UpdateOwnerSchema` — `email` (optional, valid email format)
+- [ ] `UpdateOwnerSchema` — `name` (optional), `email` (optional, valid email format)
 
 **Route + UI** (`src/routes/_dashboard/profile/index.tsx`):
 
-- [ ] Display current owner email and plan badge (`free` / `paid`)
-- [ ] Edit email form with save button
+- [ ] Display current owner name, email, and plan badge (`free` / `paid`)
+- [ ] Edit form with name and email fields with save button
 - [ ] Show success toast on save
 - [ ] Add "Profile" link to the dashboard nav (coordinate placement with Member 4)
 
@@ -285,7 +285,7 @@ Replace the bare stub at `src/routes/_dashboard/dashboard/index.tsx` and build a
   - Reports (`/dashboard/reports`)
   - Profile (`/dashboard/profile`) — bottom of sidebar
   - Logout button — bottom of sidebar (already exists, move here)
-- [ ] Show owner email and plan badge (`free` / `paid`) in sidebar footer
+- [ ] Show owner name, email, and plan badge (`free` / `paid`) in sidebar footer
 - [ ] Sidebar collapses to icon-only on mobile (`useIsMobile()`)
 - [ ] Main content area renders `<Outlet />`
 
@@ -307,7 +307,8 @@ Route: `/dashboard` (`src/routes/_dashboard/dashboard/index.tsx`)
 
 **UI:**
 
-- [ ] Property selector dropdown at the top (if owner has multiple properties)
+- [ ] Greeting at the top: "Hello, {owner.name}!" (read from session context)
+- [ ] Property selector dropdown (if owner has multiple properties)
 - [ ] Stat cards row: Total Rooms, Occupied, Vacant, Monthly Income
 - [ ] Income breakdown card: Collected vs Outstanding (use `recharts` — a `BarChart` or `RadialBarChart`)
 - [ ] Overdue/unpaid tenants list — table of tenants with unpaid or partial status this month (name, room, amount outstanding)
