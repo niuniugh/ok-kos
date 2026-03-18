@@ -9,7 +9,7 @@ import { parseServerError } from "@/lib/utils";
 import { UpdateOwnerSchema } from "@/modules/owner/schema";
 import { getOwnerFn, updateOwnerFn } from "@/modules/owner/serverFn";
 
-export const Route = createFileRoute("/_dashboard/dashboard/profile/")({
+export const Route = createFileRoute("/dashboard/profile/")({
 	component: ProfilePage,
 });
 
