@@ -15,7 +15,7 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 3. Create dashboard schema (src/modules/dashboard/schema.ts)
 
-- [ ] `DashboardSummaryInputSchema` — `propertyId` (optional UUID), `month` (YYYY-MM format)
+- [x] `DashboardSummaryInputSchema` — `propertyId` (optional UUID), `month` (YYYY-MM format)
 
 ## 4. Create dashboard server functions (src/modules/dashboard/serverFn.ts)
 
