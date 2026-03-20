@@ -10,8 +10,8 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 2. Create EmptyState component (src/components/empty-state.tsx)
 
-- [ ] Props-driven wrapper around `Empty`, `EmptyHeader`, `EmptyMedia`, `EmptyTitle`, `EmptyDescription`, `EmptyContent`
-- [ ] Support `icon: LucideIcon`, `title`, `description`, `actionLabel?`, `onAction?()`, `actionHref?`
+- [x] Props-driven wrapper around `Empty`, `EmptyHeader`, `EmptyMedia`, `EmptyTitle`, `EmptyDescription`, `EmptyContent`
+- [x] Support `icon: LucideIcon`, `title`, `description`, `actionLabel?`, `onAction?()`, `actionHref?`
 
 ## 3. Create dashboard schema (src/modules/dashboard/schema.ts)
 
