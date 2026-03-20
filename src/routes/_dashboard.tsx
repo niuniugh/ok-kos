@@ -7,8 +7,13 @@ export const Route = createFileRoute("/_dashboard")({
 	component: RouteComponent,
 	pendingComponent: PendingComponent,
 	beforeLoad: async () => {
-		const session = await getCurrentSession();
-		if (!session.email) {
+		try {
+			const session = await getCurrentSession();
+			if (!session.email) {
+				throw redirect({ to: "/login" });
+			}
+		} catch (error) {
+			if (error instanceof Response) throw error;
 			throw redirect({ to: "/login" });
 		}
 	},

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { parseServerError } from "@/lib/utils";
+import { extractFieldErrors, parseServerError } from "@/lib/utils";
 import { LoginSchema } from "@/modules/auth/schema";
 import { loginFn } from "@/modules/auth/serverFn";
 
@@ -27,12 +27,7 @@ function LoginPage() {
 
 		const result = LoginSchema.safeParse({ email, password });
 		if (!result.success) {
-			const errors: FieldErrors = {};
-			for (const issue of result.error.issues) {
-				const field = issue.path[0] as keyof FieldErrors;
-				if (!errors[field]) errors[field] = issue.message;
-			}
-			setFieldErrors(errors);
+			setFieldErrors(extractFieldErrors<keyof FieldErrors>(result.error));
 			return;
 		}
 
@@ -65,6 +60,7 @@ function LoginPage() {
 					<Input
 						id="email"
 						type="email"
+						autoComplete="email"
 						placeholder="you@example.com"
 						value={email}
 						onChange={(e) => {
@@ -82,6 +78,7 @@ function LoginPage() {
 					<Input
 						id="password"
 						type="password"
+						autoComplete="current-password"
 						placeholder="Enter your password"
 						value={password}
 						onChange={(e) => {

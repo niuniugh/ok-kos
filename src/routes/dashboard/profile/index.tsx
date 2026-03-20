@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { parseServerError } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
+import { extractFieldErrors, parseServerError } from "@/lib/utils";
 import { UpdateOwnerSchema } from "@/modules/owner/schema";
 import { getOwnerFn, updateOwnerFn } from "@/modules/owner/serverFn";
 
@@ -59,12 +60,7 @@ function ProfilePage() {
 
 		const result = UpdateOwnerSchema.safeParse({ name, email });
 		if (!result.success) {
-			const errors: FieldErrors = {};
-			for (const issue of result.error.issues) {
-				const field = issue.path[0] as keyof FieldErrors;
-				if (!errors[field]) errors[field] = issue.message;
-			}
-			setFieldErrors(errors);
+			setFieldErrors(extractFieldErrors<keyof FieldErrors>(result.error));
 			return;
 		}
 
@@ -91,7 +87,7 @@ function ProfilePage() {
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center p-8">
-				<p className="text-sm text-muted-foreground">Loading...</p>
+				<Spinner />
 			</div>
 		);
 	}

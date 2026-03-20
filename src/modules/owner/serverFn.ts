@@ -37,31 +37,32 @@ export const updateOwnerFn = createServerFn({ method: "POST" })
 			throw new Error("Unauthorized");
 		}
 
-		// Check if email is being changed and if it already exists
-		if (data.email) {
-			const existingOwner = await prisma.owner.findUnique({
-				where: { email: data.email },
+		const updatedOwner = await prisma.owner
+			.update({
+				where: { id: session.data.id },
+				data: {
+					...(data.name && { name: data.name }),
+					...(data.email && { email: data.email }),
+				},
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					plan: true,
+					createdAt: true,
+				},
+			})
+			.catch((error: unknown) => {
+				if (
+					typeof error === "object" &&
+					error !== null &&
+					"code" in error &&
+					error.code === "P2002"
+				) {
+					throw new Error("Email already in use");
+				}
+				throw error;
 			});
-
-			if (existingOwner && existingOwner.id !== session.data.id) {
-				throw new Error("Email already in use");
-			}
-		}
-
-		const updatedOwner = await prisma.owner.update({
-			where: { id: session.data.id },
-			data: {
-				...(data.name && { name: data.name }),
-				...(data.email && { email: data.email }),
-			},
-			select: {
-				id: true,
-				name: true,
-				email: true,
-				plan: true,
-				createdAt: true,
-			},
-		});
 
 		// Sync session with updated values
 		await session.update({

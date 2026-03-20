@@ -49,7 +49,8 @@ export const registerFn = createServerFn({ method: "POST" })
 			throw new Error("Email already registered");
 		}
 
-		const hashedPassword = await bcrypt.hash(data.password, 10);
+		const BCRYPT_ROUNDS = 10;
+	const hashedPassword = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
 
 		const user = await prisma.owner.create({
 			data: {
