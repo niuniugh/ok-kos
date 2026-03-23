@@ -39,8 +39,8 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 7. Create reports server function (src/modules/reports/serverFn.ts)
 
-- [ ] `getReportSummaryFn()` — queries room counts, full payment breakdown, occupancy rate
-- [ ] Return type: `{ property, month, stats, breakdown }`
+- [x] `getReportSummaryFn()` — queries room counts, full payment breakdown, occupancy rate
+- [x] Return type: `{ property, month, stats, breakdown }`
 
 ## 8. Build reports page UI (src/routes/_dashboard/dashboard/reports/index.tsx)
 
