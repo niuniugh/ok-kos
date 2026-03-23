@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Building2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -123,12 +125,13 @@ function PropertiesPage() {
 			{isLoading ? (
 				<div className="text-gray-400">Loading properties...</div>
 			) : properties?.length === 0 ? (
-				<div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
-					<p className="text-gray-400 mb-4">No properties found</p>
-					<Button onClick={() => setIsCreateOpen(true)} variant="outline">
-						Add Your First Property
-					</Button>
-				</div>
+				<EmptyState
+					icon={Building2}
+					title="No properties yet"
+					description="Add your first property to start managing rooms and tenants."
+					actionLabel="Add Property"
+					onAction={() => setIsCreateOpen(true)}
+				/>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{properties?.map((property) => (

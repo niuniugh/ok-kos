@@ -1,8 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, Edit, Info, Trash2 } from "lucide-react";
+import {
+	AlertTriangle,
+	ArrowLeft,
+	DoorOpen,
+	Edit,
+	Info,
+	Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { EmptyState } from "@/components/empty-state";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
 	AlertDialog,
@@ -307,15 +315,13 @@ function PropertyDetailPage() {
 					</CardHeader>
 					<CardContent>
 						{!rooms || rooms.length === 0 ? (
-							<div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
-								<p className="text-gray-400 mb-4">No rooms found</p>
-								<Button
-									onClick={() => setIsCreateRoomOpen(true)}
-									variant="outline"
-								>
-									Add Your First Room
-								</Button>
-							</div>
+							<EmptyState
+								icon={DoorOpen}
+								title="No rooms yet"
+								description="Add your first room to start assigning tenants."
+								actionLabel="Add Room"
+								onAction={() => setIsCreateRoomOpen(true)}
+							/>
 						) : (
 							<div className="rounded-md border border-zinc-800">
 								<Table>

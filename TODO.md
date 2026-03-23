@@ -58,8 +58,8 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 10. Add empty states to other list pages
 
-- [ ] Properties: Building2 icon, "No properties yet"
-- [ ] Rooms: DoorOpen icon, "No rooms yet"
+- [x] Properties: Building2 icon, "No properties yet"
+- [x] Rooms: DoorOpen icon, "No rooms yet"
 - [ ] Tenants: Users icon, "No tenants yet"
 - [ ] Payments: Receipt icon, "No payments yet"
 
