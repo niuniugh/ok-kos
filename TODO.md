@@ -44,11 +44,11 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 8. Build reports page UI (src/routes/_dashboard/dashboard/reports/index.tsx)
 
-- [ ] PropertySelector (Select) + MonthPicker (Select with last 12 months)
-- [ ] StatCards row: Total Due, Total Collected, Total Outstanding, Occupancy Rate
-- [ ] PaymentBreakdownTable (Table with TableFooter for totals)
-- [ ] ExportCSVButton (client-side Blob download)
-- [ ] EmptyState when no property selected
+- [x] PropertySelector (Select) + MonthPicker (Select with last 12 months)
+- [x] StatCards row: Total Due, Total Collected, Total Outstanding, Occupancy Rate
+- [x] PaymentBreakdownTable (Table with TableFooter for totals)
+- [x] ExportCSVButton (client-side Blob download)
+- [x] EmptyState when no property selected
 
 ## 9. Add errorComponent to _dashboard layout (src/routes/_dashboard.tsx)
 
