@@ -52,9 +52,9 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 9. Add errorComponent to _dashboard layout (src/routes/_dashboard.tsx)
 
-- [ ] Add `errorComponent` to route config
-- [ ] Shows error message + "Try again" button
-- [ ] Uses AlertCircle icon from lucide-react
+- [x] Add `errorComponent` to route config
+- [x] Shows error message + "Try again" button
+- [x] Uses AlertCircle icon from lucide-react
 
 ## 10. Add empty states to other list pages
 
