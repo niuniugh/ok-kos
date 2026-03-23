@@ -1,68 +1,285 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { getOwnerFn } from "@/modules/owner/serverFn";
-import { getPaymentsFn } from "@/modules/payment/serverFn";
-import { getPropertiesFn } from "@/modules/property/serverFn";
-import { getTenantsFn } from "@/modules/tenant/serverFn";
+import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+
+import { EmptyState } from "@/components/empty-state";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	ChartContainer,
+	ChartTooltip,
+	ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import {
+	getDashboardSummaryFn,
+	getOwnerPropertiesFn,
+} from "@/modules/dashboard/serverFn";
 
 export const Route = createFileRoute("/_dashboard/dashboard/")({
 	component: DashboardPage,
 });
 
+function currentMonth() {
+	return new Date().toISOString().slice(0, 7);
+}
+
+function shiftMonth(month: string, offset: number) {
+	const [y, m] = month.split("-").map(Number);
+	const d = new Date(y, m - 1 + offset, 1);
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function formatMonth(month: string) {
+	const [y, m] = month.split("-").map(Number);
+	return new Date(y, m - 1).toLocaleString("default", {
+		month: "long",
+		year: "numeric",
+	});
+}
+
+const chartConfig = {
+	collected: { label: "Collected", color: "#22c55e" },
+	outstanding: { label: "Outstanding", color: "#ef4444" },
+};
+
 function DashboardPage() {
-	// Fetch owner info
-	const { data: owner } = useQuery({
-		queryKey: ["owner"],
-		queryFn: getOwnerFn,
+	const [month, setMonth] = useState(currentMonth);
+	const [propertyId, setPropertyId] = useState<string | undefined>(undefined);
+
+	const { data: properties, isLoading: propertiesLoading } = useQuery({
+		queryKey: ["owner-properties"],
+		queryFn: () => getOwnerPropertiesFn(),
 	});
 
-	// Fetch counts
-	const { data: properties } = useQuery({
-		queryKey: ["properties-count"],
-		queryFn: getPropertiesFn,
+	const { data: summary, isLoading: summaryLoading } = useQuery({
+		queryKey: ["dashboard-summary", propertyId, month],
+		queryFn: () => getDashboardSummaryFn({ data: { propertyId, month } }),
+		enabled: !propertiesLoading,
 	});
-	const { data: tenants } = useQuery<{ count: number }>({
-		queryKey: ["tenants-count"],
-		queryFn: getTenantsFn,
-	});
-	const { data: payments } = useQuery<{ count: number }>({
-		queryKey: ["payments-count"],
-		queryFn: getPaymentsFn,
-	});
+
+	const isLoading = propertiesLoading || summaryLoading;
+
+	if (!isLoading && summary && !summary.hasProperties) {
+		return (
+			<div className="space-y-6">
+				<h1 className="text-2xl font-bold text-white">
+					Hello, {summary.owner.name}!
+				</h1>
+				<EmptyState
+					icon={Building2}
+					title="No properties yet"
+					description="Add your first property to start tracking rooms, tenants, and payments."
+					actionLabel="Go to Properties"
+					actionHref="/dashboard/properties"
+				/>
+			</div>
+		);
+	}
+
+	const chartData = summary
+		? [
+				{
+					name: formatMonth(month),
+					collected: summary.stats.totalCollected,
+					outstanding: summary.stats.totalOutstanding,
+				},
+			]
+		: [];
+
+	const statCards = [
+		{ label: "Total Rooms", value: summary?.stats.totalRooms ?? 0 },
+		{ label: "Occupied", value: summary?.stats.occupied ?? 0 },
+		{ label: "Vacant", value: summary?.stats.vacant ?? 0 },
+		{
+			label: "Monthly Income",
+			value: `Rp ${(summary?.stats.monthlyIncome ?? 0).toLocaleString("id-ID")}`,
+		},
+	];
 
 	return (
 		<div className="space-y-6">
-			{/* Greeting */}
-			<div>
-				<h1 className="text-2xl font-bold text-white">
-					Welcome, {owner?.name} 👋
-				</h1>
-				<p className="text-gray-400">Here's your dashboard overview</p>
+			{/* Header */}
+			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					{isLoading ? (
+						<Skeleton className="h-8 w-48" />
+					) : (
+						<h1 className="text-2xl font-bold text-white">
+							Hello, {summary?.owner.name}!
+						</h1>
+					)}
+				</div>
+
+				<div className="flex items-center gap-3">
+					{/* Property selector */}
+					{propertiesLoading ? (
+						<Skeleton className="h-9 w-40" />
+					) : (
+						<Select
+							value={propertyId ?? properties?.[0]?.id ?? ""}
+							onValueChange={setPropertyId}
+						>
+							<SelectTrigger className="w-40">
+								<SelectValue placeholder="Select property" />
+							</SelectTrigger>
+							<SelectContent>
+								{properties?.map((p) => (
+									<SelectItem key={p.id} value={p.id}>
+										{p.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					)}
+
+					{/* Month navigator */}
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							onClick={() => setMonth((m) => shiftMonth(m, -1))}
+							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+						>
+							<ChevronLeft className="h-4 w-4" />
+						</button>
+						<span className="w-32 text-center text-sm text-gray-300">
+							{formatMonth(month)}
+						</span>
+						<button
+							type="button"
+							onClick={() => setMonth((m) => shiftMonth(m, 1))}
+							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+						>
+							<ChevronRight className="h-4 w-4" />
+						</button>
+					</div>
+				</div>
 			</div>
 
-			{/* Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition">
-					<p className="text-sm text-gray-400">🏠 Properties</p>
-					<h2 className="text-2xl font-semibold text-white">
-						{properties?.length ?? 0}
-					</h2>
-				</div>
-
-				<div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition">
-					<p className="text-sm text-gray-400">👥 Tenants</p>
-					<h2 className="text-2xl font-semibold text-white">
-						{tenants?.count ?? 0}
-					</h2>
-				</div>
-
-				<div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition">
-					<p className="text-sm text-gray-400">💳 Payments</p>
-					<h2 className="text-2xl font-semibold text-white">
-						{payments?.count ?? 0}
-					</h2>
-				</div>
+			{/* Stat cards */}
+			<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+				{statCards.map(({ label, value }) => (
+					<Card key={label}>
+						<CardHeader>
+							<CardTitle className="text-sm text-gray-400">{label}</CardTitle>
+						</CardHeader>
+						<CardContent>
+							{isLoading ? (
+								<Skeleton className="h-8 w-16" />
+							) : (
+								<p className="text-2xl font-semibold text-white">{value}</p>
+							)}
+						</CardContent>
+					</Card>
+				))}
 			</div>
+
+			{/* Income breakdown chart */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-sm text-gray-400">
+						Income Breakdown
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{isLoading ? (
+						<Skeleton className="h-48 w-full" />
+					) : (
+						<ChartContainer config={chartConfig} className="h-48 w-full">
+							<BarChart data={chartData}>
+								<CartesianGrid strokeDasharray="3 3" />
+								<XAxis dataKey="name" />
+								<YAxis />
+								<ChartTooltip content={<ChartTooltipContent />} />
+								<Bar
+									dataKey="collected"
+									fill={chartConfig.collected.color}
+									radius={4}
+								/>
+								<Bar
+									dataKey="outstanding"
+									fill={chartConfig.outstanding.color}
+									radius={4}
+								/>
+							</BarChart>
+						</ChartContainer>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Overdue tenants table */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-sm text-gray-400">
+						Overdue Tenants
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{isLoading ? (
+						<Skeleton className="h-24 w-full" />
+					) : !summary?.overdueTenants.length ? (
+						<p className="py-4 text-center text-sm text-gray-500">
+							No overdue tenants this month.
+						</p>
+					) : (
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Tenant</TableHead>
+									<TableHead>Room</TableHead>
+									<TableHead>Due</TableHead>
+									<TableHead>Paid</TableHead>
+									<TableHead>Outstanding</TableHead>
+									<TableHead>Status</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{summary.overdueTenants.map((t) => (
+									<TableRow key={t.tenantId}>
+										<TableCell>{t.tenantName}</TableCell>
+										<TableCell>{t.roomNumber}</TableCell>
+										<TableCell>
+											Rp {t.amountDue.toLocaleString("id-ID")}
+										</TableCell>
+										<TableCell>
+											Rp {t.amountPaid.toLocaleString("id-ID")}
+										</TableCell>
+										<TableCell>
+											Rp {t.outstanding.toLocaleString("id-ID")}
+										</TableCell>
+										<TableCell>
+											<Badge
+												variant={
+													t.status === "unpaid" ? "destructive" : "secondary"
+												}
+											>
+												{t.status}
+											</Badge>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					)}
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

@@ -25,13 +25,13 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 5. Build dashboard page UI (src/routes/_dashboard/dashboard/index.tsx)
 
-- [ ] Greeting: "Hello, {owner.name}!"
-- [ ] Controls: PropertySelector (Select) + MonthNavigator (prev/next arrows)
-- [ ] StatCards row: Total Rooms, Occupied, Vacant, Monthly Income
-- [ ] IncomeBreakdownChart (ChartContainer + BarChart): Collected vs Outstanding
-- [ ] OverdueTenantsTable: Tenant, Room, Due, Paid, Outstanding, Status
-- [ ] EmptyState when no properties
-- [ ] Loading states with Skeleton
+- [x] Greeting: "Hello, {owner.name}!"
+- [x] Controls: PropertySelector (Select) + MonthNavigator (prev/next arrows)
+- [x] StatCards row: Total Rooms, Occupied, Vacant, Monthly Income
+- [x] IncomeBreakdownChart (ChartContainer + BarChart): Collected vs Outstanding
+- [x] OverdueTenantsTable: Tenant, Room, Due, Paid, Outstanding, Status
+- [x] EmptyState when no properties
+- [x] Loading states with Skeleton
 
 ## 6. Create reports schema (src/modules/reports/schema.ts)
 
