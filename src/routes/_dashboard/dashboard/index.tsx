@@ -17,7 +17,7 @@ function DashboardPage() {
 	});
 
 	// Fetch counts
-	const { data: properties } = useQuery<{ count: number }>({
+	const { data: properties } = useQuery({
 		queryKey: ["properties-count"],
 		queryFn: getPropertiesFn,
 	});
@@ -45,7 +45,7 @@ function DashboardPage() {
 				<div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition">
 					<p className="text-sm text-gray-400">🏠 Properties</p>
 					<h2 className="text-2xl font-semibold text-white">
-						{properties?.count ?? 0}
+						{properties?.length ?? 0}
 					</h2>
 				</div>
 

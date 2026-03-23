@@ -16,10 +16,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardDashboardRouteRouteImport } from './routes/_dashboard/dashboard/route'
 import { Route as DashboardDashboardIndexRouteImport } from './routes/_dashboard/dashboard/index'
 import { Route as DashboardDashboardTenantsIndexRouteImport } from './routes/_dashboard/dashboard/tenants/index'
+import { Route as DashboardDashboardRoomsIndexRouteImport } from './routes/_dashboard/dashboard/rooms/index'
 import { Route as DashboardDashboardReportsIndexRouteImport } from './routes/_dashboard/dashboard/reports/index'
 import { Route as DashboardDashboardPropertiesIndexRouteImport } from './routes/_dashboard/dashboard/properties/index'
 import { Route as DashboardDashboardProfileIndexRouteImport } from './routes/_dashboard/dashboard/profile/index'
 import { Route as DashboardDashboardPaymentsIndexRouteImport } from './routes/_dashboard/dashboard/payments/index'
+import { Route as DashboardDashboardPropertiesPropertyIdIndexRouteImport } from './routes/_dashboard/dashboard/properties/$propertyId/index'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -56,6 +58,12 @@ const DashboardDashboardTenantsIndexRoute =
     path: '/tenants/',
     getParentRoute: () => DashboardDashboardRouteRoute,
   } as any)
+const DashboardDashboardRoomsIndexRoute =
+  DashboardDashboardRoomsIndexRouteImport.update({
+    id: '/rooms/',
+    path: '/rooms/',
+    getParentRoute: () => DashboardDashboardRouteRoute,
+  } as any)
 const DashboardDashboardReportsIndexRoute =
   DashboardDashboardReportsIndexRouteImport.update({
     id: '/reports/',
@@ -80,6 +88,12 @@ const DashboardDashboardPaymentsIndexRoute =
     path: '/payments/',
     getParentRoute: () => DashboardDashboardRouteRoute,
   } as any)
+const DashboardDashboardPropertiesPropertyIdIndexRoute =
+  DashboardDashboardPropertiesPropertyIdIndexRouteImport.update({
+    id: '/properties/$propertyId/',
+    path: '/properties/$propertyId/',
+    getParentRoute: () => DashboardDashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,7 +105,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/profile/': typeof DashboardDashboardProfileIndexRoute
   '/dashboard/properties/': typeof DashboardDashboardPropertiesIndexRoute
   '/dashboard/reports/': typeof DashboardDashboardReportsIndexRoute
+  '/dashboard/rooms/': typeof DashboardDashboardRoomsIndexRoute
   '/dashboard/tenants/': typeof DashboardDashboardTenantsIndexRoute
+  '/dashboard/properties/$propertyId/': typeof DashboardDashboardPropertiesPropertyIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,7 +118,9 @@ export interface FileRoutesByTo {
   '/dashboard/profile': typeof DashboardDashboardProfileIndexRoute
   '/dashboard/properties': typeof DashboardDashboardPropertiesIndexRoute
   '/dashboard/reports': typeof DashboardDashboardReportsIndexRoute
+  '/dashboard/rooms': typeof DashboardDashboardRoomsIndexRoute
   '/dashboard/tenants': typeof DashboardDashboardTenantsIndexRoute
+  '/dashboard/properties/$propertyId': typeof DashboardDashboardPropertiesPropertyIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,7 +134,9 @@ export interface FileRoutesById {
   '/_dashboard/dashboard/profile/': typeof DashboardDashboardProfileIndexRoute
   '/_dashboard/dashboard/properties/': typeof DashboardDashboardPropertiesIndexRoute
   '/_dashboard/dashboard/reports/': typeof DashboardDashboardReportsIndexRoute
+  '/_dashboard/dashboard/rooms/': typeof DashboardDashboardRoomsIndexRoute
   '/_dashboard/dashboard/tenants/': typeof DashboardDashboardTenantsIndexRoute
+  '/_dashboard/dashboard/properties/$propertyId/': typeof DashboardDashboardPropertiesPropertyIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,7 +150,9 @@ export interface FileRouteTypes {
     | '/dashboard/profile/'
     | '/dashboard/properties/'
     | '/dashboard/reports/'
+    | '/dashboard/rooms/'
     | '/dashboard/tenants/'
+    | '/dashboard/properties/$propertyId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -141,7 +163,9 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/properties'
     | '/dashboard/reports'
+    | '/dashboard/rooms'
     | '/dashboard/tenants'
+    | '/dashboard/properties/$propertyId'
   id:
     | '__root__'
     | '/'
@@ -154,7 +178,9 @@ export interface FileRouteTypes {
     | '/_dashboard/dashboard/profile/'
     | '/_dashboard/dashboard/properties/'
     | '/_dashboard/dashboard/reports/'
+    | '/_dashboard/dashboard/rooms/'
     | '/_dashboard/dashboard/tenants/'
+    | '/_dashboard/dashboard/properties/$propertyId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardTenantsIndexRouteImport
       parentRoute: typeof DashboardDashboardRouteRoute
     }
+    '/_dashboard/dashboard/rooms/': {
+      id: '/_dashboard/dashboard/rooms/'
+      path: '/rooms'
+      fullPath: '/dashboard/rooms/'
+      preLoaderRoute: typeof DashboardDashboardRoomsIndexRouteImport
+      parentRoute: typeof DashboardDashboardRouteRoute
+    }
     '/_dashboard/dashboard/reports/': {
       id: '/_dashboard/dashboard/reports/'
       path: '/reports'
@@ -243,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardPaymentsIndexRouteImport
       parentRoute: typeof DashboardDashboardRouteRoute
     }
+    '/_dashboard/dashboard/properties/$propertyId/': {
+      id: '/_dashboard/dashboard/properties/$propertyId/'
+      path: '/properties/$propertyId'
+      fullPath: '/dashboard/properties/$propertyId/'
+      preLoaderRoute: typeof DashboardDashboardPropertiesPropertyIdIndexRouteImport
+      parentRoute: typeof DashboardDashboardRouteRoute
+    }
   }
 }
 
@@ -252,7 +292,9 @@ interface DashboardDashboardRouteRouteChildren {
   DashboardDashboardProfileIndexRoute: typeof DashboardDashboardProfileIndexRoute
   DashboardDashboardPropertiesIndexRoute: typeof DashboardDashboardPropertiesIndexRoute
   DashboardDashboardReportsIndexRoute: typeof DashboardDashboardReportsIndexRoute
+  DashboardDashboardRoomsIndexRoute: typeof DashboardDashboardRoomsIndexRoute
   DashboardDashboardTenantsIndexRoute: typeof DashboardDashboardTenantsIndexRoute
+  DashboardDashboardPropertiesPropertyIdIndexRoute: typeof DashboardDashboardPropertiesPropertyIdIndexRoute
 }
 
 const DashboardDashboardRouteRouteChildren: DashboardDashboardRouteRouteChildren =
@@ -263,7 +305,10 @@ const DashboardDashboardRouteRouteChildren: DashboardDashboardRouteRouteChildren
     DashboardDashboardPropertiesIndexRoute:
       DashboardDashboardPropertiesIndexRoute,
     DashboardDashboardReportsIndexRoute: DashboardDashboardReportsIndexRoute,
+    DashboardDashboardRoomsIndexRoute: DashboardDashboardRoomsIndexRoute,
     DashboardDashboardTenantsIndexRoute: DashboardDashboardTenantsIndexRoute,
+    DashboardDashboardPropertiesPropertyIdIndexRoute:
+      DashboardDashboardPropertiesPropertyIdIndexRoute,
   }
 
 const DashboardDashboardRouteRouteWithChildren =

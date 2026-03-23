@@ -95,16 +95,16 @@ Create `src/modules/property/serverFn.ts` and `src/modules/property/schema.ts`.
 
 **Zod schemas:**
 
-- [ ] `CreatePropertySchema` — `name` (required), `address` (required)
-- [ ] `UpdatePropertySchema` — `name` (optional), `address` (optional)
+- [x] `CreatePropertySchema` — `name` (required), `address` (required)
+- [x] `UpdatePropertySchema` — `name` (optional), `address` (optional)
 
 **Server functions:**
 
-- [ ] `getPropertiesFn` — list all properties for the logged-in owner (use session `id`)
-- [ ] `getPropertyFn` — get a single property by `id`, verify it belongs to the session owner
-- [ ] `createPropertyFn` — create a property linked to session owner
-- [ ] `updatePropertyFn` — update `name` / `address`, verify ownership
-- [ ] `deletePropertyFn` — delete property; return error if any room has an active tenant (`409`-equivalent: throw with message)
+- [x] `getPropertiesFn` — list all properties for the logged-in owner (use session `id`)
+- [x] `getPropertyFn` — get a single property by `id`, verify it belongs to the session owner
+- [x] `createPropertyFn` — create a property linked to session owner
+- [x] `updatePropertyFn` — update `name` / `address`, verify ownership
+- [x] `deletePropertyFn` — delete property; return error if any room has an active tenant (`409`-equivalent: throw with message)
 
 ---
 
@@ -112,19 +112,19 @@ Create `src/modules/property/serverFn.ts` and `src/modules/property/schema.ts`.
 
 **Difficulty:** Medium
 
-**List + create** (`src/routes/_dashboard/properties/index.tsx`):
+**List + create** (`src/routes/_dashboard/dashboard/properties/index.tsx`):
 
-- [ ] List all properties in a card grid (name, address, room count)
-- [ ] "Add Property" button → opens a `Dialog` with the create form
-- [ ] On create success: close dialog, refresh list, show toast
+- [x] List all properties in a card grid (name, address, room count)
+- [x] "Add Property" button → opens a `Dialog` with the create form
+- [x] On create success: close dialog, refresh list, show toast
 
-**Detail + edit** (`src/routes/_dashboard/properties/$propertyId/index.tsx`):
+**Detail + edit** (`src/routes/_dashboard/dashboard/properties/$propertyId/index.tsx`):
 
-- [ ] Show property name and address
-- [ ] "Edit" button → inline edit or dialog
-- [ ] "Delete" button → confirmation `AlertDialog` → call `deletePropertyFn`
-- [ ] Show error toast if delete is blocked by active tenants
-- [ ] Tabs or section below for rooms list (render the Room components from Task 2.4)
+- [x] Show property name and address
+- [x] "Edit" button → inline edit or dialog
+- [x] "Delete" button → confirmation `AlertDialog` → call `deletePropertyFn`
+- [x] Show error toast if delete is blocked by active tenants
+- [x] Tabs or section below for rooms list (render the Room components from Task 2.4)
 
 ---
 
@@ -136,16 +136,16 @@ Create `src/modules/room/serverFn.ts` and `src/modules/room/schema.ts`.
 
 **Zod schemas:**
 
-- [ ] `CreateRoomSchema` — `propertyId` (UUID), `roomNumber` (required), `rentPrice` (positive integer)
-- [ ] `UpdateRoomSchema` — `roomNumber` (optional), `rentPrice` (optional, positive integer)
+- [x] `CreateRoomSchema` — `propertyId` (UUID), `roomNumber` (required), `rentPrice` (positive integer)
+- [x] `UpdateRoomSchema` — `roomNumber` (optional), `rentPrice` (optional, positive integer)
 
 **Server functions:**
 
-- [ ] `getRoomsFn` — list all rooms for a given `propertyId`, verify property belongs to session owner; support optional `status` filter
-- [ ] `getRoomFn` — get a single room by `id`, verify ownership chain
-- [ ] `createRoomFn` — create room; enforce freemium limit: count existing rooms for the property, throw if `owner.plan === 'free'` and count `>= 10`
-- [ ] `updateRoomFn` — update `roomNumber` / `rentPrice`, verify ownership
-- [ ] `deleteRoomFn` — delete room; throw if `room.status === 'occupied'`
+- [x] `getRoomsFn` — list all rooms for a given `propertyId`, verify property belongs to session owner; support optional `status` filter
+- [x] `getRoomFn` — get a single room by `id`, verify ownership chain
+- [x] `createRoomFn` — create room; enforce freemium limit: count existing rooms for the property, throw if `owner.plan === 'free'` and count `>= 10`
+- [x] `updateRoomFn` — update `roomNumber` / `rentPrice`, verify ownership
+- [x] `deleteRoomFn` — delete room; throw if `room.status === 'occupied'`
 
 ---
 
@@ -155,12 +155,12 @@ Create `src/modules/room/serverFn.ts` and `src/modules/room/schema.ts`.
 
 Rooms list (rendered inside property detail page from Task 2.2):
 
-- [ ] Table with columns: Room Number, Rent Price, Status (`vacant` / `occupied` badge), Actions
-- [ ] "Add Room" button → `Dialog` with create form
-- [ ] Inline "Edit" and "Delete" actions per row
-- [ ] Show freemium limit warning banner when room count reaches 8/10 (free plan)
-- [ ] Show upgrade prompt (non-functional for MVP, just a `Dialog` or `Alert` with copy) when limit is hit on create
-- [ ] Disable "Add Room" button when limit is reached on free plan
+- [x] Table with columns: Room Number, Rent Price, Status (`vacant` / `occupied` badge), Actions
+- [x] "Add Room" button → `Dialog` with create form
+- [x] Inline "Edit" and "Delete" actions per row
+- [x] Show freemium limit warning banner when room count reaches 8/10 (free plan)
+- [x] Show upgrade prompt (non-functional for MVP, just a `Dialog` or `Alert` with copy) when limit is hit on create
+- [x] Disable "Add Room" button when limit is reached on free plan
 
 ---
 
