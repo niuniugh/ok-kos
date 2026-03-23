@@ -19,9 +19,9 @@ Member 4 implementation todos on `feature/dashboard-reports-empty-states`.
 
 ## 4. Create dashboard server functions (src/modules/dashboard/serverFn.ts)
 
-- [ ] `getOwnerPropertiesFn()` — returns `Array<{ id, name }>`
-- [ ] `getDashboardSummaryFn()` — queries room counts, payment totals, overdue tenants
-- [ ] Return type: `{ owner, property, hasProperties, month, stats, overdueTenants }`
+- [x] `getOwnerPropertiesFn()` — returns `Array<{ id, name }>`
+- [x] `getDashboardSummaryFn()` — queries room counts, payment totals, overdue tenants
+- [x] Return type: `{ owner, property, hasProperties, month, stats, overdueTenants }`
 
 ## 5. Build dashboard page UI (src/routes/_dashboard/dashboard/index.tsx)
 
