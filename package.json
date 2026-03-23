@@ -2,7 +2,6 @@
 	"name": "ok-kos",
 	"private": true,
 	"type": "module",
-
 	"scripts": {
 		"dev": "vite dev --port 3000",
 		"build": "vite build",
@@ -23,6 +22,8 @@
 		"@prisma/client": "^7.5.0",
 		"@tailwindcss/vite": "^4.1.18",
 		"@tanstack/react-devtools": "latest",
+		"@tanstack/react-query": "^5.91.2",
+		"@tanstack/react-query-devtools": "^5.91.3",
 		"@tanstack/react-router": "latest",
 		"@tanstack/react-router-devtools": "latest",
 		"@tanstack/react-router-ssr-query": "latest",
@@ -35,7 +36,6 @@
 		"embla-carousel-react": "^8.6.0",
 		"input-otp": "^1.4.2",
 		"lucide-react": "^0.545.0",
-
 		"radix-ui": "^1.4.3",
 		"react": "^19.2.0",
 		"react-day-picker": "^9.14.0",
@@ -51,7 +51,7 @@
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.6",
+		"@biomejs/biome": "^2.4.8",
 		"@tailwindcss/typography": "^0.5.16",
 		"@tanstack/devtools-vite": "latest",
 		"@tanstack/router-plugin": "^1.132.0",

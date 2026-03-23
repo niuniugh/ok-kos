@@ -4,43 +4,60 @@ import { prisma } from "@/lib/prisma";
 import { useAppSession } from "../sessions/appSession";
 import { LoginSchema, RegisterSchema } from "./schema";
 
+// ================= LOGIN =================
 export const loginFn = createServerFn({ method: "POST" })
 	.inputValidator(LoginSchema)
 	.handler(async ({ data }) => {
-		const user = await prisma.owner.findUnique({
-			where: { email: data.email },
-		});
+		const session = await useAppSession(); // ← dipanggil di level atas
 
-		if (!user) {
-			throw new Error("Invalid email or password");
+		try {
+			console.log("LOGIN DATA:", data);
+
+			const user = await prisma.owner.findUnique({
+				where: { email: data.email },
+			});
+
+			console.log("USER:", user);
+
+			if (!user) {
+				throw new Error("Invalid email or password");
+			}
+
+			const isValidPassword = await bcrypt.compare(
+				data.password,
+				user.passwordHash,
+			);
+
+			console.log("PASSWORD VALID:", isValidPassword);
+
+			if (!isValidPassword) {
+				throw new Error("Invalid email or password");
+			}
+
+			await session.update({
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				plan: user.plan,
+			});
+		} catch (err) {
+			console.error("LOGIN ERROR:", err);
+			throw err;
 		}
-
-		const isValidPassword = await bcrypt.compare(
-			data.password,
-			user.passwordHash,
-		);
-
-		if (!isValidPassword) {
-			throw new Error("Invalid email or password");
-		}
-
-		const session = await useAppSession();
-		await session.update({
-			id: user.id,
-			name: user.name,
-			email: user.email,
-			plan: user.plan,
-		});
 	});
 
+// ================= LOGOUT =================
 export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
-	const session = await useAppSession();
+	const session = await useAppSession(); // ← dipanggil di level atas
 	await session.clear();
 });
 
+// ================= REGISTER =================
 export const registerFn = createServerFn({ method: "POST" })
 	.inputValidator(RegisterSchema)
 	.handler(async ({ data }) => {
+		const session = await useAppSession(); // ← dipanggil di level atas
+
 		const existingUser = await prisma.owner.findUnique({
 			where: { email: data.email },
 		});
@@ -50,7 +67,7 @@ export const registerFn = createServerFn({ method: "POST" })
 		}
 
 		const BCRYPT_ROUNDS = 10;
-	const hashedPassword = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
+		const hashedPassword = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
 
 		const user = await prisma.owner.create({
 			data: {
@@ -60,7 +77,6 @@ export const registerFn = createServerFn({ method: "POST" })
 			},
 		});
 
-		const session = await useAppSession();
 		await session.update({
 			id: user.id,
 			name: user.name,

@@ -10,7 +10,7 @@ import { extractFieldErrors, parseServerError } from "@/lib/utils";
 import { UpdateOwnerSchema } from "@/modules/owner/schema";
 import { getOwnerFn, updateOwnerFn } from "@/modules/owner/serverFn";
 
-export const Route = createFileRoute("/dashboard/profile/")({
+export const Route = createFileRoute("/_dashboard/dashboard/profile/")({
 	component: ProfilePage,
 });
 
@@ -54,7 +54,7 @@ function ProfilePage() {
 		loadOwner();
 	}, []);
 
-	async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
+	async function handleSave(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		setFieldErrors({});
 
@@ -66,9 +66,7 @@ function ProfilePage() {
 
 		setIsSaving(true);
 		try {
-			const updated = await updateOwnerFn({
-				data: { name, email },
-			});
+			const updated = await updateOwnerFn({ data: { name, email } });
 			setOwner({
 				...updated,
 				createdAt:
@@ -84,24 +82,22 @@ function ProfilePage() {
 		}
 	}
 
-	if (isLoading) {
+	if (isLoading)
 		return (
 			<div className="flex items-center justify-center p-8">
 				<Spinner />
 			</div>
 		);
-	}
 
-	if (!owner) {
+	if (!owner)
 		return (
 			<div className="flex items-center justify-center p-8">
 				<p className="text-sm text-muted-foreground">Could not load profile</p>
 			</div>
 		);
-	}
 
 	return (
-		<div className="space-y-8 p-8">
+		<div className="space-y-8 p-8 max-w-3xl mx-auto">
 			<div>
 				<h1 className="text-3xl font-bold">Profile</h1>
 				<p className="text-sm text-muted-foreground">
@@ -109,91 +105,89 @@ function ProfilePage() {
 				</p>
 			</div>
 
-			<div className="max-w-md space-y-6 rounded-lg border p-6 shadow-sm">
-				{/* Display current info */}
-				<div className="space-y-4">
-					<div>
-						<p className="text-sm font-medium text-muted-foreground">Plan</p>
-						<div className="mt-1">
-							<Badge variant={owner.plan === "paid" ? "default" : "secondary"}>
-								{owner.plan === "free" ? "Free" : "Paid"}
-							</Badge>
-						</div>
-					</div>
-
-					<div>
-						<p className="text-sm font-medium text-muted-foreground">
-							Member Since
-						</p>
-						<p className="text-sm">
-							{new Date(owner.createdAt).toLocaleDateString()}
-						</p>
+			<div className="space-y-6 p-6 bg-white rounded-lg border shadow-sm max-w-md">
+				{/* Plan Info */}
+				<div>
+					<p className="text-sm font-medium text-gray-500">Plan</p>
+					<div className="mt-1">
+						<Badge
+							variant={owner.plan === "paid" ? "default" : "secondary"}
+							className="px-2 py-1 text-xs font-semibold"
+						>
+							{owner.plan === "free" ? "Free" : "Paid"}
+						</Badge>
 					</div>
 				</div>
 
-				<div className="h-px bg-border" />
+				{/* Member Since */}
+				<div>
+					<p className="text-sm font-medium text-gray-500">Member Since</p>
+					<p className="text-sm text-gray-900 mt-1">
+						{new Date(owner.createdAt).toLocaleDateString()}
+					</p>
+				</div>
 
-				{/* Edit form */}
+				{/* Contact Info */}
+				<div>
+					<p className="text-sm font-medium text-gray-500">Email</p>
+					<p className="text-sm text-gray-900 mt-1">{owner.email}</p>
+				</div>
+
+				<div className="h-px bg-gray-200" />
+
+				{/* Edit Form */}
 				<form onSubmit={handleSave} className="space-y-4">
 					<div className="space-y-2">
-						<h2 className="text-lg font-semibold">Edit Profile</h2>
+						<h2 className="text-lg font-semibold text-gray-700">
+							Edit Profile
+						</h2>
 					</div>
 
-					<Field data-invalid={!!fieldErrors.name}>
-						<FieldLabel htmlFor="name">Name</FieldLabel>
-						<Input
-							id="name"
-							type="text"
-							placeholder="Your name"
-							value={name}
-							onChange={(e) => {
-								setName(e.target.value);
-								setFieldErrors((prev) => ({
-									...prev,
-									name: undefined,
-								}));
-							}}
-						/>
-						<FieldError
-							errors={
-								fieldErrors.name
-									? [
-											{
-												message: fieldErrors.name,
-											},
-										]
-									: []
-							}
-						/>
-					</Field>
+					<div className="space-y-4">
+						{/* Name Field */}
+						<Field data-invalid={!!fieldErrors.name}>
+							<FieldLabel htmlFor="name" className="text-gray-700">
+								Name
+							</FieldLabel>
+							<Input
+								id="name"
+								type="text"
+								placeholder="Your name"
+								value={name}
+								onChange={(e) => {
+									setName(e.target.value);
+									setFieldErrors((prev) => ({ ...prev, name: undefined }));
+								}}
+								className="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md w-full"
+							/>
+							<FieldError
+								errors={fieldErrors.name ? [{ message: fieldErrors.name }] : []}
+							/>
+						</Field>
 
-					<Field data-invalid={!!fieldErrors.email}>
-						<FieldLabel htmlFor="email">Email</FieldLabel>
-						<Input
-							id="email"
-							type="email"
-							placeholder="your@email.com"
-							value={email}
-							onChange={(e) => {
-								setEmail(e.target.value);
-								setFieldErrors((prev) => ({
-									...prev,
-									email: undefined,
-								}));
-							}}
-						/>
-						<FieldError
-							errors={
-								fieldErrors.email
-									? [
-											{
-												message: fieldErrors.email,
-											},
-										]
-									: []
-							}
-						/>
-					</Field>
+						{/* Email Field */}
+						<Field data-invalid={!!fieldErrors.email}>
+							<FieldLabel htmlFor="email" className="text-gray-700">
+								Email
+							</FieldLabel>
+							<Input
+								id="email"
+								type="email"
+								placeholder="your@email.com"
+								value={email}
+								onChange={(e) => {
+									setEmail(e.target.value);
+									setFieldErrors((prev) => ({ ...prev, email: undefined }));
+								}}
+								className="bg-gray-50 border border-darkGray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md w-full"
+							/>
+							<FieldError
+								errors={
+									fieldErrors.email ? [{ message: fieldErrors.email }] : []
+								}
+							/>
+						</Field>
+					</div>
 
 					<Button type="submit" className="w-full" disabled={isSaving}>
 						{isSaving ? "Saving..." : "Save Changes"}

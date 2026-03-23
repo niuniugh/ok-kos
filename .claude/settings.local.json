@@ -1,0 +1,8 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(rtk git:*)",
+			"Bash(grep -rn \"\\\\b10\\\\b\\\\|\\\\b8\\\\b\\\\|\\\\b30\\\\b\\\\|\\\\b768\\\\b\" /d/personal/devscale/batch-x/ok-kos/src --include=*.ts --include=*.tsx)"
+		]
+	}
+}
