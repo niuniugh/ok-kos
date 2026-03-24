@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { parseServerError } from "@/lib/utils";
 import { createPropertyFn, getPropertiesFn } from "@/modules/property/serverFn";
 
 export const Route = createFileRoute("/_dashboard/dashboard/properties/")({
@@ -47,7 +48,7 @@ function PropertiesPage() {
 			setIsCreateOpen(false);
 		},
 		onError: (error) => {
-			toast.error(error.message || "Failed to create property");
+			toast.error(parseServerError(error));
 		},
 	});
 

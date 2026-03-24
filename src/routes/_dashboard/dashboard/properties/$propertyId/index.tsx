@@ -136,7 +136,7 @@ function PropertyDetailPage() {
 			setIsCreateRoomOpen(false);
 		},
 		onError: (error) => {
-			if (error.message.includes("Free plan limit reached")) {
+			if (error.message.includes("FREE_PLAN_LIMIT_REACHED")) {
 				setIsCreateRoomOpen(false);
 				setIsUpgradePromptOpen(true);
 			} else {
