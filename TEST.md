@@ -9,7 +9,7 @@ Test the entire app manually before merging. Run `pnpm dev` and go through each 
 - [X] 1.1 Visit `/register` — form renders with name, email, password fields
 - [X] 1.2 Submit empty form — inline field errors appear
 - [X] 1.3 Submit with invalid email format — field error on email
-- [X] 1.4 Register with valid name, email, password — redirects to `/dashboard`
+- [X] 1.4 Register with valid name, email, password — redirects to `/login` with success toast
 - [X] 1.5 Register again with the same email — toast error "Email already registered"
 - [X] 1.6 "Already have an account?" link navigates to `/login`
 
@@ -44,7 +44,7 @@ Test the entire app manually before merging. Run `pnpm dev` and go through each 
 ## 5. Dashboard Page
 
 - [X] 5.1 Visit `/dashboard` — greeting shows "Hello, {your name}!"
-- [ ] 5.2 PropertySelector dropdown shows your properties
+- [X] 5.2 PropertySelector dropdown shows your properties
 - [ ] 5.3 Selecting a different property updates the stats
 - [ ] 5.4 MonthNavigator left arrow goes to previous month, right arrow to next
 - [ ] 5.5 StatCards show: Total Rooms, Occupied, Vacant, Monthly Income

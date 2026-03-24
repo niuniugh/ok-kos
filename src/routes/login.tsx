@@ -50,10 +50,12 @@ function LoginPage() {
 		setIsLoading(true);
 		try {
 			await loginFn({ data: { email, password } });
-			navigate({ to: "/dashboard" });
+			toast.success("Login successful! Redirecting...");
+			setTimeout(() => {
+				navigate({ to: "/dashboard" });
+			}, 2000);
 		} catch (error) {
 			toast.error(parseServerError(error));
-		} finally {
 			setIsLoading(false);
 		}
 	}
