@@ -10,40 +10,29 @@ export const loginFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		const session = await useAppSession(); // ← dipanggil di level atas
 
-		try {
-			console.log("LOGIN DATA:", data);
+		const user = await prisma.owner.findUnique({
+			where: { email: data.email },
+		});
 
-			const user = await prisma.owner.findUnique({
-				where: { email: data.email },
-			});
-
-			console.log("USER:", user);
-
-			if (!user) {
-				throw new Error("Invalid email or password");
-			}
-
-			const isValidPassword = await bcrypt.compare(
-				data.password,
-				user.passwordHash,
-			);
-
-			console.log("PASSWORD VALID:", isValidPassword);
-
-			if (!isValidPassword) {
-				throw new Error("Invalid email or password");
-			}
-
-			await session.update({
-				id: user.id,
-				name: user.name,
-				email: user.email,
-				plan: user.plan,
-			});
-		} catch (err) {
-			console.error("LOGIN ERROR:", err);
-			throw err;
+		if (!user) {
+			throw new Error("Invalid email or password");
 		}
+
+		const isValidPassword = await bcrypt.compare(
+			data.password,
+			user.passwordHash,
+		);
+
+		if (!isValidPassword) {
+			throw new Error("Invalid email or password");
+		}
+
+		await session.update({
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			plan: user.plan,
+		});
 	});
 
 // ================= LOGOUT =================

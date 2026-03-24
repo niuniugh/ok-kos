@@ -1,4 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -7,9 +12,20 @@ import { Input } from "@/components/ui/input";
 import { extractFieldErrors, parseServerError } from "@/lib/utils";
 import { RegisterSchema } from "@/modules/auth/schema";
 import { registerFn } from "@/modules/auth/serverFn";
+import { getCurrentSession } from "@/modules/sessions/serverFn";
 
 export const Route = createFileRoute("/register")({
 	component: RegisterPage,
+	beforeLoad: async () => {
+		try {
+			const session = await getCurrentSession();
+			if (session.email) {
+				throw redirect({ to: "/dashboard" });
+			}
+		} catch (error) {
+			if (error instanceof Response) throw error;
+		}
+	},
 });
 
 type FieldErrors = Partial<Record<"name" | "email" | "password", string>>;
