@@ -86,9 +86,7 @@ export const createRoomFn = createServerFn({ method: "POST" })
 			});
 
 			if (roomCount >= 10) {
-				throw new Error(
-					"Free plan limit reached: You can only have up to 10 rooms per property. Please upgrade to add more.",
-				);
+				throw new Error("FREE_PLAN_LIMIT_REACHED");
 			}
 		}
 

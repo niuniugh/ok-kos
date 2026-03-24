@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { parseServerError } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
+import { extractFieldErrors, parseServerError } from "@/lib/utils";
 import { UpdateOwnerSchema } from "@/modules/owner/schema";
 import { getOwnerFn, updateOwnerFn } from "@/modules/owner/serverFn";
 
@@ -59,12 +60,7 @@ function ProfilePage() {
 
 		const result = UpdateOwnerSchema.safeParse({ name, email });
 		if (!result.success) {
-			const errors: FieldErrors = {};
-			for (const issue of result.error.issues) {
-				const field = issue.path[0] as keyof FieldErrors;
-				if (!errors[field]) errors[field] = issue.message;
-			}
-			setFieldErrors(errors);
+			setFieldErrors(extractFieldErrors<keyof FieldErrors>(result.error));
 			return;
 		}
 
@@ -89,7 +85,7 @@ function ProfilePage() {
 	if (isLoading)
 		return (
 			<div className="flex items-center justify-center p-8">
-				<p className="text-sm text-muted-foreground">Loading...</p>
+				<Spinner />
 			</div>
 		);
 
@@ -126,7 +122,7 @@ function ProfilePage() {
 				{/* Member Since */}
 				<div>
 					<p className="text-sm font-medium text-gray-500">Member Since</p>
-					<p className="text-sm text-gray-900 mt-1">
+					<p className="text-sm text-gray-200 mt-1">
 						{new Date(owner.createdAt).toLocaleDateString()}
 					</p>
 				</div>
@@ -134,15 +130,15 @@ function ProfilePage() {
 				{/* Contact Info */}
 				<div>
 					<p className="text-sm font-medium text-gray-500">Email</p>
-					<p className="text-sm text-gray-900 mt-1">{owner.email}</p>
+					<p className="text-sm text-gray-200 mt-1">{owner.email}</p>
 				</div>
 
-				<div className="h-px bg-gray-200" />
+				<div className="h-px bg-zinc-700" />
 
 				{/* Edit Form */}
 				<form onSubmit={handleSave} className="space-y-4">
 					<div className="space-y-2">
-						<h2 className="text-lg font-semibold text-gray-700">
+						<h2 className="text-lg font-semibold text-gray-300">
 							Edit Profile
 						</h2>
 					</div>
@@ -150,7 +146,7 @@ function ProfilePage() {
 					<div className="space-y-4">
 						{/* Name Field */}
 						<Field data-invalid={!!fieldErrors.name}>
-							<FieldLabel htmlFor="name" className="text-gray-700">
+							<FieldLabel htmlFor="name" className="text-gray-300">
 								Name
 							</FieldLabel>
 							<Input
@@ -162,7 +158,7 @@ function ProfilePage() {
 									setName(e.target.value);
 									setFieldErrors((prev) => ({ ...prev, name: undefined }));
 								}}
-								className="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md w-full"
+								className="bg-zinc-800 border border-zinc-700 text-gray-200 placeholder-zinc-500 focus:border-zinc-500 rounded-md w-full"
 							/>
 							<FieldError
 								errors={fieldErrors.name ? [{ message: fieldErrors.name }] : []}
@@ -171,7 +167,7 @@ function ProfilePage() {
 
 						{/* Email Field */}
 						<Field data-invalid={!!fieldErrors.email}>
-							<FieldLabel htmlFor="email" className="text-gray-700">
+							<FieldLabel htmlFor="email" className="text-gray-300">
 								Email
 							</FieldLabel>
 							<Input
@@ -183,7 +179,7 @@ function ProfilePage() {
 									setEmail(e.target.value);
 									setFieldErrors((prev) => ({ ...prev, email: undefined }));
 								}}
-								className="bg-gray-50 border border-darkGray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md w-full"
+								className="bg-zinc-800 border border-zinc-700 text-gray-200 placeholder-zinc-500 focus:border-zinc-500 rounded-md w-full"
 							/>
 							<FieldError
 								errors={

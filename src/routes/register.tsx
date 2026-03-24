@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { parseServerError } from "@/lib/utils";
+import { extractFieldErrors, parseServerError } from "@/lib/utils";
 import { RegisterSchema } from "@/modules/auth/schema";
 import { registerFn } from "@/modules/auth/serverFn";
 
@@ -28,12 +28,7 @@ function RegisterPage() {
 
 		const result = RegisterSchema.safeParse({ name, email, password });
 		if (!result.success) {
-			const errors: FieldErrors = {};
-			for (const issue of result.error.issues) {
-				const field = issue.path[0] as keyof FieldErrors;
-				if (!errors[field]) errors[field] = issue.message;
-			}
-			setFieldErrors(errors);
+			setFieldErrors(extractFieldErrors<keyof FieldErrors>(result.error));
 			return;
 		}
 
@@ -66,6 +61,7 @@ function RegisterPage() {
 					<Input
 						id="name"
 						type="text"
+						autoComplete="name"
 						placeholder="John Doe"
 						value={name}
 						onChange={(e) => {
@@ -83,6 +79,7 @@ function RegisterPage() {
 					<Input
 						id="email"
 						type="email"
+						autoComplete="email"
 						placeholder="you@example.com"
 						value={email}
 						onChange={(e) => {
@@ -100,6 +97,7 @@ function RegisterPage() {
 					<Input
 						id="password"
 						type="password"
+						autoComplete="new-password"
 						placeholder="Create a password"
 						value={password}
 						onChange={(e) => {

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "@/lib/prisma";
+import { verifyPropertyOwnership } from "../auth/helpers";
 import { useAppSession } from "../sessions/appSession";
 import {
 	CreatePropertySchema,
@@ -74,17 +75,7 @@ export const updatePropertyFn = createServerFn({ method: "POST" })
 		const session = await useAppSession();
 		if (!session.data?.id) throw new Error("Unauthorized");
 
-		const property = await prisma.property.findUnique({
-			where: { id: data.id },
-		});
-
-		if (!property) {
-			throw new Error("Property not found");
-		}
-
-		if (property.ownerId !== session.data.id) {
-			throw new Error("Forbidden: You do not own this property");
-		}
+		await verifyPropertyOwnership(session.data.id, data.id);
 
 		const updatedProperty = await prisma.property.update({
 			where: { id: data.id },
@@ -103,26 +94,20 @@ export const deletePropertyFn = createServerFn({ method: "POST" })
 		const session = await useAppSession();
 		if (!session.data?.id) throw new Error("Unauthorized");
 
+		await verifyPropertyOwnership(session.data.id, data.id);
+
 		const property = await prisma.property.findUnique({
 			where: { id: data.id },
 			include: {
 				rooms: {
 					include: {
-						tenants: {
-							where: { status: "active" },
-						},
+						tenants: { where: { status: "active" } },
 					},
 				},
 			},
 		});
 
-		if (!property) {
-			throw new Error("Property not found");
-		}
-
-		if (property.ownerId !== session.data.id) {
-			throw new Error("Forbidden: You do not own this property");
-		}
+		if (!property) throw new Error("Property not found");
 
 		// Check if any room has an active tenant
 		const hasActiveTenants = property.rooms.some(
