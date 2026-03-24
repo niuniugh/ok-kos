@@ -6,44 +6,44 @@ Test the entire app manually before merging. Run `pnpm dev` and go through each 
 
 ## 1. Auth — Register
 
-- [ ] 1.1 Visit `/register` — form renders with name, email, password fields
-- [ ] 1.2 Submit empty form — inline field errors appear
-- [ ] 1.3 Submit with invalid email format — field error on email
-- [ ] 1.4 Register with valid name, email, password — redirects to `/dashboard`
-- [ ] 1.5 Register again with the same email — toast error "Email already registered"
-- [ ] 1.6 "Already have an account?" link navigates to `/login`
+- [X] 1.1 Visit `/register` — form renders with name, email, password fields
+- [X] 1.2 Submit empty form — inline field errors appear
+- [X] 1.3 Submit with invalid email format — field error on email
+- [X] 1.4 Register with valid name, email, password — redirects to `/dashboard`
+- [X] 1.5 Register again with the same email — toast error "Email already registered"
+- [X] 1.6 "Already have an account?" link navigates to `/login`
 
 ---
 
 ## 2. Auth — Login
 
-- [ ] 2.1 Visit `/login` — form renders with email, password fields
-- [ ] 2.2 Submit empty form — inline field errors appear
-- [ ] 2.3 Submit with wrong password — toast error "Invalid email or password"
-- [ ] 2.4 Submit with unregistered email — toast error "Invalid email or password"
-- [ ] 2.5 Login with correct credentials — redirects to `/dashboard`
-- [ ] 2.6 "Don't have an account?" link navigates to `/register`
+- [X] 2.1 Visit `/login` — form renders with email, password fields
+- [X] 2.2 Submit empty form — inline field errors appear
+- [X] 2.3 Submit with wrong password — toast error "Invalid email or password"
+- [X] 2.4 Submit with unregistered email — toast error "Invalid email or password"
+- [X] 2.5 Login with correct credentials — redirects to `/dashboard`
+- [X] 2.6 "Don't have an account?" link navigates to `/register`
 
 ---
 
 ## 3. Auth — Guard
 
-- [ ] 3.1 Visit `/dashboard` while logged out — redirects to `/login`
-- [ ] 3.2 Visit `/dashboard/properties` while logged out — redirects to `/login`
-- [ ] 3.3 After logout, visiting `/dashboard` redirects to `/login`
+- [X] 3.1 Visit `/dashboard` while logged out — redirects to `/login`
+- [X] 3.2 Visit `/dashboard/properties` while logged out — redirects to `/login`
+- [X] 3.3 After login, visit `/login` or `/register` — should redirect to `/dashboard`
 
 ---
 
 ## 4. Auth — Logout
 
-- [ ] 4.1 Logout from any dashboard page — redirects to `/login`
-- [ ] 4.2 After logout, visiting `/dashboard` redirects to `/login`
+- [X] 4.1 Logout from any dashboard page — redirects to `/login`
+- [X] 4.2 After logout, visiting `/dashboard` redirects to `/login`
 
 ---
 
 ## 5. Dashboard Page
 
-- [ ] 5.1 Visit `/dashboard` — greeting shows "Hello, {your name}!"
+- [X] 5.1 Visit `/dashboard` — greeting shows "Hello, {your name}!"
 - [ ] 5.2 PropertySelector dropdown shows your properties
 - [ ] 5.3 Selecting a different property updates the stats
 - [ ] 5.4 MonthNavigator left arrow goes to previous month, right arrow to next
@@ -118,15 +118,7 @@ Test the entire app manually before merging. Run `pnpm dev` and go through each 
 
 ---
 
-## 11. Empty States
+## 11. Waiting on Member 3
 
-- [ ] 11.1 Properties list with no properties — EmptyState with Building2 icon
-- [ ] 11.2 Rooms list with no rooms — EmptyState with DoorOpen icon inside the card
-- [ ] 11.3 EmptyState action button is functional in both cases
-
----
-
-## 12. Waiting on Member 3
-
-- [ ] 12.1 Tenants list with no tenants — EmptyState with Users icon *(pending)*
-- [ ] 12.2 Payments list with no payments — EmptyState with Receipt icon *(pending)*
+- [ ] 11.1 Tenants list with no tenants — EmptyState with Users icon *(pending)*
+- [ ] 11.2 Payments list with no payments — EmptyState with Receipt icon *(pending)*
