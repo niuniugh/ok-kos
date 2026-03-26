@@ -103,7 +103,6 @@ model Payment {
 
   tenant     Tenant        @relation(fields: [tenantId], references: [id])
 
-  @@unique([tenantId, month])
   @@index([tenantId])
   @@index([month])
   @@map("payments")
