@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getTenantFn } from "@/modules/tenant/serverFn";
-// import { PaymentHistory } from "@/components/payment-history"
+import { PaymentHistory } from "../../payments/components/payment-history";
 import { EditTenantDialog } from "../components/edit-tenant";
 import { MoveOutDialog } from "../components/move-out-dialog";
 
@@ -136,7 +136,7 @@ function TenantDetailPage() {
 				<h2 className="text-lg font-semibold text-white mb-4">
 					Payment History
 				</h2>
-				{/* <PaymentHistory tenantId={tenantId} /> */}
+				<PaymentHistory tenantId={tenantId} />
 			</div>
 		</div>
 	);

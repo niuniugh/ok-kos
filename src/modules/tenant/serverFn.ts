@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { Prisma } from "generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { useAppSession } from "../sessions/appSession";
 import {
@@ -9,14 +10,13 @@ import {
 	UpdateTenantSchema,
 } from "./schema";
 
-
 export const getTenantsFn = createServerFn({ method: "GET" })
 	.inputValidator(GetTenantsSchema)
 	.handler(async ({ data }) => {
 		const session = await useAppSession();
 		if (!session.data?.id) throw new Error("Unauthorized");
 
-		const where = {
+		const where: Prisma.TenantWhereInput = {
 			...(data.status ? { status: data.status } : {}),
 			room: {
 				property: {
@@ -51,6 +51,7 @@ export const getTenantsFn = createServerFn({ method: "GET" })
 				id: t.id,
 				roomId: t.roomId,
 				roomNumber: t.room.roomNumber,
+				rentPrice: t.room.rentPrice,
 				propertyId: t.room.property.id,
 				propertyName: t.room.property.name,
 				name: t.name,
