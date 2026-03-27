@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { formatDate, formatIDR } from "@/lib/utils";
 import { getPaymentsFn } from "@/modules/payment/serverFn";
 
 interface PaymentHistoryProps {
@@ -13,18 +14,6 @@ export function PaymentHistory({ tenantId }: PaymentHistoryProps) {
 		enabled: !!tenantId,
 	});
 	const payments = res?.data ?? [];
-
-	const formatIDR = (n: number) => `Rp ${n.toLocaleString("id-ID")}`;
-
-	const formatDate = (d: Date | string | null) => {
-		if (!d) return "—";
-		const date = d instanceof Date ? d : new Date(d);
-		return date.toLocaleDateString("id-ID", {
-			day: "2-digit",
-			month: "short",
-			year: "numeric",
-		});
-	};
 
 	if (isLoading) {
 		return <p className="text-sm text-gray-400">Loading payments...</p>;

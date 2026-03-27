@@ -34,8 +34,8 @@ export const getPropertyFn = createServerFn({ method: "GET" })
 		const session = await useAppSession();
 		if (!session.data?.id) throw new Error("Unauthorized");
 
-		const property = await prisma.property.findUnique({
-			where: { id: data.id },
+		const property = await prisma.property.findFirst({
+			where: { id: data.id, ownerId: session.data.id },
 			include: {
 				rooms: true,
 			},
@@ -43,10 +43,6 @@ export const getPropertyFn = createServerFn({ method: "GET" })
 
 		if (!property) {
 			throw new Error("Property not found");
-		}
-
-		if (property.ownerId !== session.data.id) {
-			throw new Error("Forbidden: You do not own this property");
 		}
 
 		return property;

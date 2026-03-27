@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -85,6 +86,7 @@ export function EditTenantDialog({ tenant, onSuccess }: EditTenantDialogProps) {
 				<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
 					<DialogHeader>
 						<DialogTitle className="text-white">Edit Tenant</DialogTitle>
+						<DialogDescription>Update tenant information.</DialogDescription>
 					</DialogHeader>
 
 					<form

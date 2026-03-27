@@ -4,7 +4,10 @@ import { FilterSchema } from "@/lib/filterSchema";
 export const CreateTenantSchema = z.object({
 	roomId: z.string().uuid("Invalid room ID"),
 	name: z.string().min(1, "Name is required"),
-	phone: z.string().min(1, "Phone is required"),
+	phone: z
+		.string()
+		.min(1, "Phone is required")
+		.regex(/^\+?[0-9\s\-()]{7,}$/, "Invalid phone number format"),
 	moveInDate: z
 		.string()
 		.regex(/^\d{4}-\d{2}-\d{2}$/, "Move-in date must be in YYYY-MM-DD format"),
@@ -13,7 +16,11 @@ export const CreateTenantSchema = z.object({
 export const UpdateTenantSchema = z.object({
 	id: z.string().uuid("Invalid tenant ID"),
 	name: z.string().min(1, "Name is required").optional(),
-	phone: z.string().min(1, "Phone is required").optional(),
+	phone: z
+		.string()
+		.min(1, "Phone is required")
+		.regex(/^\+?[0-9\s\-()]{7,}$/, "Invalid phone number format")
+		.optional(),
 	moveInDate: z
 		.string()
 		.regex(/^\d{4}-\d{2}-\d{2}$/, "Move-in date must be in YYYY-MM-DD format")

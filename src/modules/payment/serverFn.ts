@@ -74,6 +74,7 @@ export const getPaymentFn = createServerFn({ method: "GET" })
 	.inputValidator(GetPaymentSchema)
 	.handler(async ({ data }) => {
 		const session = await useAppSession();
+		if (!session.data?.id) throw new Error("Unauthorized");
 
 		const payment = await prisma.payment.findFirst({
 			where: {
@@ -117,6 +118,7 @@ export const createPaymentFn = createServerFn({ method: "POST" })
 	.inputValidator(CreatePaymentSchema)
 	.handler(async ({ data }) => {
 		const session = await useAppSession();
+		if (!session.data?.id) throw new Error("Unauthorized");
 
 		const tenant = await prisma.tenant.findFirst({
 			where: {
@@ -147,6 +149,7 @@ export const updatePaymentFn = createServerFn({ method: "POST" })
 	)
 	.handler(async ({ data }) => {
 		const session = await useAppSession();
+		if (!session.data?.id) throw new Error("Unauthorized");
 		const { id, ...fields } = data;
 
 		const existing = await prisma.payment.findFirst({

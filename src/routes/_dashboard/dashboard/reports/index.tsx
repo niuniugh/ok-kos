@@ -24,20 +24,13 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { currentMonth, formatIDR } from "@/lib/utils";
 import { getOwnerPropertiesFn } from "@/modules/dashboard/serverFn";
 import { getReportSummaryFn } from "@/modules/reports/serverFn";
 
 export const Route = createFileRoute("/_dashboard/dashboard/reports/")({
 	component: ReportsPage,
 });
-
-function formatRp(amount: number) {
-	return `Rp ${amount.toLocaleString("id-ID")}`;
-}
-
-function currentMonth() {
-	return new Date().toISOString().slice(0, 7);
-}
 
 function getLast12Months() {
 	const months: { value: string; label: string }[] = [];
@@ -103,15 +96,15 @@ function ReportsPage() {
 	const statCards = [
 		{
 			label: "Total Due",
-			value: formatRp(report?.stats.totalDue ?? 0),
+			value: formatIDR(report?.stats.totalDue ?? 0),
 		},
 		{
 			label: "Total Collected",
-			value: formatRp(report?.stats.totalCollected ?? 0),
+			value: formatIDR(report?.stats.totalCollected ?? 0),
 		},
 		{
 			label: "Total Outstanding",
-			value: formatRp(report?.stats.totalOutstanding ?? 0),
+			value: formatIDR(report?.stats.totalOutstanding ?? 0),
 		},
 		{
 			label: "Occupancy Rate",
@@ -237,9 +230,9 @@ function ReportsPage() {
 											<TableRow key={r.paymentId}>
 												<TableCell>{r.tenantName}</TableCell>
 												<TableCell>{r.roomNumber}</TableCell>
-												<TableCell>{formatRp(r.amountDue)}</TableCell>
-												<TableCell>{formatRp(r.amountPaid)}</TableCell>
-												<TableCell>{formatRp(r.outstanding)}</TableCell>
+												<TableCell>{formatIDR(r.amountDue)}</TableCell>
+												<TableCell>{formatIDR(r.amountPaid)}</TableCell>
+												<TableCell>{formatIDR(r.outstanding)}</TableCell>
 												<TableCell>
 													<Badge
 														variant={
@@ -262,13 +255,13 @@ function ReportsPage() {
 												Total
 											</TableCell>
 											<TableCell className="font-semibold">
-												{formatRp(report.stats.totalDue)}
+												{formatIDR(report.stats.totalDue)}
 											</TableCell>
 											<TableCell className="font-semibold">
-												{formatRp(report.stats.totalCollected)}
+												{formatIDR(report.stats.totalCollected)}
 											</TableCell>
 											<TableCell className="font-semibold">
-												{formatRp(report.stats.totalOutstanding)}
+												{formatIDR(report.stats.totalOutstanding)}
 											</TableCell>
 											<TableCell />
 										</TableRow>

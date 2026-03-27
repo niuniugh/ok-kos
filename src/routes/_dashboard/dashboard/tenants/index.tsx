@@ -19,6 +19,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { formatDate } from "@/lib/utils";
 import { getPropertiesFn } from "@/modules/property/serverFn";
 import { getTenantsFn } from "@/modules/tenant/serverFn";
 import { CreateTenantDialog } from "./components/create-tenants";
@@ -74,16 +75,6 @@ function TenantsPage() {
 	const totalPages = meta ? Math.ceil(meta.total / meta.limit) : 1;
 	const from = meta ? (meta.page - 1) * meta.limit + 1 : 0;
 	const to = meta ? Math.min(meta.page * meta.limit, meta.total) : 0;
-
-	const formatDate = (d: Date | string | null) => {
-		if (!d) return "—";
-		const date = d instanceof Date ? d : new Date(d);
-		return date.toLocaleDateString("id-ID", {
-			day: "2-digit",
-			month: "short",
-			year: "numeric",
-		});
-	};
 
 	return (
 		<div className="space-y-6">

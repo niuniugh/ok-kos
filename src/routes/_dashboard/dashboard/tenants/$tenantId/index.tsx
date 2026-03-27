@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/utils";
 import { getTenantFn } from "@/modules/tenant/serverFn";
 import { PaymentHistory } from "../../payments/components/payment-history";
 import { EditTenantDialog } from "../components/edit-tenant";
@@ -29,16 +30,6 @@ function TenantDetailPage() {
 		queryFn: () => getTenantFn({ data: { id: tenantId } }),
 	});
 	const tenant = data?.tenant;
-
-	const formatDate = (d: Date | string | null) => {
-		if (!d) return "—";
-		const date = d instanceof Date ? d : new Date(d);
-		return date.toLocaleDateString("id-ID", {
-			day: "2-digit",
-			month: "long",
-			year: "numeric",
-		});
-	};
 
 	if (isLoading) {
 		return <div className="text-gray-400 text-sm py-10">Loading tenant...</div>;
@@ -72,7 +63,7 @@ function TenantDetailPage() {
 				<div>
 					<h1 className="text-2xl font-bold text-white">{tenant.name}</h1>
 					<p className="text-gray-400 text-sm mt-0.5">
-						Tenant since {formatDate(tenant.moveInDate)}
+						Tenant since {formatDate(tenant.moveInDate, "long")}
 					</p>
 				</div>
 
@@ -117,12 +108,12 @@ function TenantDetailPage() {
 				<InfoCard
 					icon={CalendarDays}
 					label="Move-in Date"
-					value={formatDate(tenant.moveInDate)}
+					value={formatDate(tenant.moveInDate, "long")}
 				/>
 				<InfoCard
 					icon={CalendarX}
 					label="Move-out Date"
-					value={formatDate(tenant.moveOutDate)}
+					value={formatDate(tenant.moveOutDate, "long")}
 				/>
 				<InfoCard
 					icon={Home}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -81,6 +82,7 @@ export function EditPaymentDialog({
 			<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle className="text-white">Edit Payment</DialogTitle>
+					<DialogDescription>Update payment details.</DialogDescription>
 				</DialogHeader>
 
 				<div className="text-sm text-gray-400 -mt-1">

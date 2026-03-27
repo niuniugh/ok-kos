@@ -34,3 +34,24 @@ export function parseServerError(error: unknown): string {
 
 	return message;
 }
+
+export function formatIDR(n: number) {
+	return `Rp ${n.toLocaleString("id-ID")}`;
+}
+
+export function formatDate(
+	d: Date | string | null,
+	month: "short" | "long" = "short",
+) {
+	if (!d) return "—";
+	const date = d instanceof Date ? d : new Date(d);
+	return date.toLocaleDateString("id-ID", {
+		day: "2-digit",
+		month,
+		year: "numeric",
+	});
+}
+
+export function currentMonth() {
+	return new Date().toISOString().slice(0, 7);
+}

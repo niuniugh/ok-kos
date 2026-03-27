@@ -28,6 +28,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { currentMonth } from "@/lib/utils";
 import {
 	getDashboardSummaryFn,
 	getOwnerPropertiesFn,
@@ -36,10 +37,6 @@ import {
 export const Route = createFileRoute("/_dashboard/dashboard/")({
 	component: DashboardPage,
 });
-
-function currentMonth() {
-	return new Date().toISOString().slice(0, 7);
-}
 
 function shiftMonth(month: string, offset: number) {
 	const [y, m] = month.split("-").map(Number);

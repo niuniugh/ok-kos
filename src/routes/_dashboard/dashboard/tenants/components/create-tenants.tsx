@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -100,6 +101,7 @@ export function CreateTenantDialog({
 			<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle className="text-white">Add Tenant</DialogTitle>
+					<DialogDescription>Add a new tenant to a room.</DialogDescription>
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4 pt-1">
