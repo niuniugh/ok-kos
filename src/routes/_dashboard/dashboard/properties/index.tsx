@@ -19,7 +19,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,54 +73,55 @@ function PropertiesPage() {
 					<p className="text-gray-400">Manage your kos properties</p>
 				</div>
 
-				<Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-					<DialogTrigger asChild>
-						<Button>Add Property</Button>
-					</DialogTrigger>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>Add New Property</DialogTitle>
-							<DialogDescription>
-								Create a new property to start adding rooms and tenants.
-							</DialogDescription>
-						</DialogHeader>
-
-						<form onSubmit={handleCreate} className="space-y-4">
-							<div className="space-y-2">
-								<Label htmlFor="name">Property Name</Label>
-								<Input
-									id="name"
-									name="name"
-									placeholder="e.g. Kos Mawar"
-									disabled={createMutation.isPending}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="address">Address</Label>
-								<Input
-									id="address"
-									name="address"
-									placeholder="e.g. Jl. Mawar No. 1"
-									disabled={createMutation.isPending}
-								/>
-							</div>
-							<DialogFooter>
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() => setIsCreateOpen(false)}
-									disabled={createMutation.isPending}
-								>
-									Cancel
-								</Button>
-								<Button type="submit" disabled={createMutation.isPending}>
-									{createMutation.isPending ? "Creating..." : "Create Property"}
-								</Button>
-							</DialogFooter>
-						</form>
-					</DialogContent>
-				</Dialog>
+				{!isLoading && properties && properties.length > 0 && (
+					<Button onClick={() => setIsCreateOpen(true)}>Add Property</Button>
+				)}
 			</div>
+
+			<Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Add New Property</DialogTitle>
+						<DialogDescription>
+							Create a new property to start adding rooms and tenants.
+						</DialogDescription>
+					</DialogHeader>
+
+					<form onSubmit={handleCreate} className="space-y-4">
+						<div className="space-y-2">
+							<Label htmlFor="name">Property Name</Label>
+							<Input
+								id="name"
+								name="name"
+								placeholder="e.g. Kos Mawar"
+								disabled={createMutation.isPending}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="address">Address</Label>
+							<Input
+								id="address"
+								name="address"
+								placeholder="e.g. Jl. Mawar No. 1"
+								disabled={createMutation.isPending}
+							/>
+						</div>
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setIsCreateOpen(false)}
+								disabled={createMutation.isPending}
+							>
+								Cancel
+							</Button>
+							<Button type="submit" disabled={createMutation.isPending}>
+								{createMutation.isPending ? "Creating..." : "Create Property"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 
 			{isLoading ? (
 				<div className="text-gray-400">Loading properties...</div>

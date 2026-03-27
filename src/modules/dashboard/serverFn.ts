@@ -52,23 +52,30 @@ export const getDashboardSummaryFn = createServerFn({ method: "GET" })
 			};
 		}
 
-		// Use provided propertyId or fall back to first property
-		const propertyId = data.propertyId ?? properties[0].id;
-		const property = await verifyPropertyOwnership(owner.id, propertyId);
+		// If propertyId is provided, verify ownership and query that property
+		// If not provided, aggregate across ALL owner properties
+		const propertyId = data.propertyId;
+		const propertyFilter = propertyId
+			? { propertyId }
+			: { propertyId: { in: properties.map((p) => p.id) } };
+
+		const property = propertyId
+			? await verifyPropertyOwnership(owner.id, propertyId)
+			: null;
 
 		// Room counts
 		const [totalRooms, occupied] = await Promise.all([
-			prisma.room.count({ where: { propertyId } }),
-			prisma.room.count({ where: { propertyId, status: "occupied" } }),
+			prisma.room.count({ where: propertyFilter }),
+			prisma.room.count({ where: { ...propertyFilter, status: "occupied" } }),
 		]);
 
-		// Payment totals for this property + month
+		// Payment totals for this property (or all) + month
 		const payments = await prisma.payment.findMany({
 			where: {
 				month: data.month,
 				tenant: {
 					status: "active",
-					room: { propertyId },
+					room: propertyFilter,
 				},
 			},
 			select: {

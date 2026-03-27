@@ -45,8 +45,6 @@ export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
 export const registerFn = createServerFn({ method: "POST" })
 	.inputValidator(RegisterSchema)
 	.handler(async ({ data }) => {
-		const session = await useAppSession(); // ← dipanggil di level atas
-
 		const existingUser = await prisma.owner.findUnique({
 			where: { email: data.email },
 		});
@@ -58,18 +56,11 @@ export const registerFn = createServerFn({ method: "POST" })
 		const BCRYPT_ROUNDS = 10;
 		const hashedPassword = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
 
-		const user = await prisma.owner.create({
+		await prisma.owner.create({
 			data: {
 				email: data.email,
 				name: data.name,
 				passwordHash: hashedPassword,
 			},
-		});
-
-		await session.update({
-			id: user.id,
-			name: user.name,
-			email: user.email,
-			plan: user.plan,
 		});
 	});

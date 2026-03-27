@@ -30,7 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-border": "var(--border)",
           "--success-bg": "var(--popover)",
           "--success-text": "var(--popover-foreground)",
-          "--success-border": "var(--border)",
+          "--success-border": "color-mix(in oklab, var(--color-green-500) 50%, transparent)",
           "--error-bg": "var(--popover)",
           "--error-text": "var(--popover-foreground)",
           "--error-border": "var(--destructive)",
@@ -48,6 +48,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           description: "text-muted-foreground!",
           icon: "text-destructive! [&>svg[data-icon='error']]:text-destructive",
           error: "[&>[data-icon]]:text-destructive!",
+          success: "[&>[data-icon]]:text-green-500!",
         },
       }}
       {...props}

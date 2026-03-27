@@ -51,6 +51,7 @@ function RegisterPage() {
 		setIsLoading(true);
 		try {
 			await registerFn({ data: { name, email, password } });
+			toast.success("Account created! Please login.");
 			navigate({ to: "/login" });
 		} catch (error) {
 			toast.error(parseServerError(error));

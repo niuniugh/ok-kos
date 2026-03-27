@@ -132,23 +132,24 @@ function DashboardPage() {
 					{/* Property selector */}
 					{propertiesLoading ? (
 						<Skeleton className="h-9 w-40" />
-					) : (
+					) : properties && properties.length > 1 ? (
 						<Select
-							value={propertyId ?? properties?.[0]?.id ?? ""}
-							onValueChange={setPropertyId}
+							value={propertyId ?? "all"}
+							onValueChange={(v) => setPropertyId(v === "all" ? undefined : v)}
 						>
 							<SelectTrigger className="w-40">
-								<SelectValue placeholder="Select property" />
+								<SelectValue placeholder="All Properties" />
 							</SelectTrigger>
 							<SelectContent>
-								{properties?.map((p) => (
+								<SelectItem value="all">All Properties</SelectItem>
+								{properties.map((p) => (
 									<SelectItem key={p.id} value={p.id}>
 										{p.name}
 									</SelectItem>
 								))}
 							</SelectContent>
 						</Select>
-					)}
+					) : null}
 
 					{/* Month navigator */}
 					<div className="flex items-center gap-1">
