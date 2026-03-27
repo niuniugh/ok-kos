@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "@/lib/prisma";
 import { verifyPropertyOwnership } from "@/modules/auth/helpers";
 import { useAppSession } from "../sessions/appSession";
-import { ReportSummaryInputSchema } from "./schema";
+import { GetReportAnalyticsSchema, ReportSummaryInputSchema } from "./schema";
 
 export const getReportSummaryFn = createServerFn({ method: "GET" })
 	.inputValidator(ReportSummaryInputSchema)
@@ -81,5 +81,122 @@ export const getReportSummaryFn = createServerFn({ method: "GET" })
 				totalOutstanding,
 			},
 			breakdown,
+		};
+	});
+
+function generateLast12Months(): string[] {
+	const now = new Date();
+	const months: string[] = [];
+	for (let i = 11; i >= 0; i--) {
+		const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+		months.push(
+			`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+		);
+	}
+	return months;
+}
+
+export const getReportAnalyticsFn = createServerFn({ method: "GET" })
+	.inputValidator(GetReportAnalyticsSchema)
+	.handler(async ({ data }) => {
+		const session = await useAppSession();
+		if (!session.data?.id) throw new Error("Unauthorized");
+
+		const ownerId = session.data.id;
+
+		const propertyFilter = data.propertyId
+			? { id: data.propertyId, ownerId }
+			: { ownerId };
+
+		const months = generateLast12Months();
+
+		const [payments, totalRooms, occupiedRooms, properties] =
+			await prisma.$transaction([
+				prisma.payment.findMany({
+					where: {
+						month: { in: months },
+						tenant: {
+							room: { property: propertyFilter },
+						},
+					},
+					select: {
+						month: true,
+						amountDue: true,
+						amountPaid: true,
+					},
+				}),
+				prisma.room.count({
+					where: { property: propertyFilter },
+				}),
+				prisma.room.count({
+					where: { property: propertyFilter, status: "occupied" },
+				}),
+				prisma.property.findMany({
+					where: { ownerId },
+					select: { id: true, name: true },
+					orderBy: { createdAt: "asc" },
+				}),
+			]);
+
+		const grouped = new Map<
+			string,
+			{ totalDue: number; totalCollected: number; tenantCount: number }
+		>();
+		for (const m of months) {
+			grouped.set(m, { totalDue: 0, totalCollected: 0, tenantCount: 0 });
+		}
+		for (const p of payments) {
+			const entry = grouped.get(p.month);
+			if (entry) {
+				entry.totalDue += p.amountDue;
+				entry.totalCollected += p.amountPaid;
+				entry.tenantCount++;
+			}
+		}
+
+		const monthlyData = months.map((m) => {
+			const entry = grouped.get(m) ?? {
+				totalDue: 0,
+				totalCollected: 0,
+				tenantCount: 0,
+			};
+			return {
+				month: m,
+				totalDue: entry.totalDue,
+				totalCollected: entry.totalCollected,
+				totalOutstanding: entry.totalDue - entry.totalCollected,
+				collectionRate:
+					entry.totalDue > 0
+						? Math.round((entry.totalCollected / entry.totalDue) * 100)
+						: 0,
+				tenantCount: entry.tenantCount,
+			};
+		});
+
+		const totalIncome = monthlyData.reduce((s, m) => s + m.totalDue, 0);
+		const totalCollected = monthlyData.reduce(
+			(s, m) => s + m.totalCollected,
+			0,
+		);
+		const monthsWithData = monthlyData.filter((m) => m.totalDue > 0);
+		const avgCollectionRate =
+			monthsWithData.length > 0
+				? Math.round(
+						monthsWithData.reduce((s, m) => s + m.collectionRate, 0) /
+							monthsWithData.length,
+					)
+				: 0;
+		const occupancyRate =
+			totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+
+		return {
+			months: monthlyData,
+			overall: {
+				totalIncome,
+				totalCollected,
+				avgCollectionRate,
+				occupancyRate,
+			},
+			properties,
 		};
 	});

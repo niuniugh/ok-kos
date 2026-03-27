@@ -10,6 +10,23 @@ import {
 	UpdateTenantSchema,
 } from "./schema";
 
+function generateMonthRange(startMonth: string, endMonth: string): string[] {
+	const [sy, sm] = startMonth.split("-").map(Number);
+	const [ey, em] = endMonth.split("-").map(Number);
+	const months: string[] = [];
+	let y = sy;
+	let m = sm;
+	while (y < ey || (y === ey && m <= em)) {
+		months.push(`${y}-${String(m).padStart(2, "0")}`);
+		m++;
+		if (m > 12) {
+			m = 1;
+			y++;
+		}
+	}
+	return months;
+}
+
 export const getTenantsFn = createServerFn({ method: "GET" })
 	.inputValidator(GetTenantsSchema)
 	.handler(async ({ data }) => {
@@ -108,21 +125,39 @@ export const createTenantFn = createServerFn({ method: "POST" })
 
 		if (!vacancy) throw new Error("Room is occupied or not found");
 
-		const [tenant] = await prisma.$transaction([
-			prisma.tenant.create({
+		const moveInDate = new Date(data.moveInDate);
+		const moveInMonth = `${moveInDate.getFullYear()}-${String(moveInDate.getMonth() + 1).padStart(2, "0")}`;
+		const now = new Date();
+		const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+		const months = generateMonthRange(moveInMonth, currentMonth);
+
+		const tenant = await prisma.$transaction(async (tx) => {
+			const tenant = await tx.tenant.create({
 				data: {
 					roomId: data.roomId,
 					name: data.name,
 					phone: data.phone,
-					moveInDate: new Date(data.moveInDate),
+					moveInDate,
 					status: "active",
 				},
-			}),
-			prisma.room.update({
+			});
+			await tx.room.update({
 				where: { id: data.roomId },
 				data: { status: "occupied" },
-			}),
-		]);
+			});
+			if (months.length > 0) {
+				await tx.payment.createMany({
+					data: months.map((m) => ({
+						tenantId: tenant.id,
+						month: m,
+						amountDue: vacancy.rentPrice,
+						amountPaid: 0,
+						status: "unpaid" as const,
+					})),
+				});
+			}
+			return tenant;
+		});
 
 		return { tenant };
 	});

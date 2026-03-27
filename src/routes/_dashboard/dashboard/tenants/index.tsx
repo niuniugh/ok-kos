@@ -1,13 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-	ChevronLeft,
-	ChevronRight,
-	Home,
-	Phone,
-	PlusIcon,
-	Users,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, Phone, Users } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -84,13 +77,7 @@ function TenantsPage() {
 					<h1 className="text-2xl font-bold text-white">Tenants</h1>
 					<p className="text-gray-400">Manage your tenants</p>
 				</div>
-				<Button
-					className="bg-blue-600 hover:bg-blue-700 text-white"
-					onClick={() => setIsCreateOpen(true)}
-				>
-					<PlusIcon className="w-4 h-4 mr-2" />
-					Add Tenant
-				</Button>
+				<Button onClick={() => setIsCreateOpen(true)}>Add Tenant</Button>
 			</div>
 
 			{/* Filters */}
