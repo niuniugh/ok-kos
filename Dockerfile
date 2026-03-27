@@ -1,12 +1,12 @@
 # Stage 1: Install dependencies
-FROM node:24-alpine AS deps
+FROM node:24-slim AS deps
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # Stage 2: Build the app
-FROM node:24-alpine AS build
+FROM node:24-slim AS build
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -15,7 +15,7 @@ RUN pnpm prisma generate
 RUN pnpm build
 
 # Stage 3: Production image
-FROM node:24-alpine AS production
+FROM node:24-slim AS production
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
