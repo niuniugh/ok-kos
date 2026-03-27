@@ -28,8 +28,8 @@ export function useAppSession() {
 		password: SESSION_SECRET,
 		cookie: {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: process.env.COOKIE_SECURE === "true",
+			sameSite: "lax",
 			maxAge: SESSION_MAX_AGE,
 		},
 	});

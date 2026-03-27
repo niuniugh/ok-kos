@@ -68,7 +68,20 @@ const httpServer = createServer(async (req, res) => {
 
 	const webResponse = await server.fetch(webRequest);
 
-	res.writeHead(webResponse.status, Object.fromEntries(webResponse.headers));
+	// Properly handle Set-Cookie headers (Object.fromEntries drops duplicates)
+	const responseHeaders = {};
+	const setCookies = [];
+	for (const [key, value] of webResponse.headers) {
+		if (key.toLowerCase() === "set-cookie") {
+			setCookies.push(value);
+		} else {
+			responseHeaders[key] = value;
+		}
+	}
+	if (setCookies.length > 0) {
+		responseHeaders["set-cookie"] = setCookies;
+	}
+	res.writeHead(webResponse.status, responseHeaders);
 	const arrayBuffer = await webResponse.arrayBuffer();
 	res.end(Buffer.from(arrayBuffer));
 });
