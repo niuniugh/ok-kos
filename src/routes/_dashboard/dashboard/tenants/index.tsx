@@ -15,9 +15,9 @@ import {
 import { formatDate } from "@/lib/utils";
 import { getPropertiesFn } from "@/modules/property/serverFn";
 import { getTenantsFn } from "@/modules/tenant/serverFn";
-import { CreateTenantDialog } from "./components/create-tenants";
-import { EditTenantDialog } from "./components/edit-tenant";
-import { MoveOutDialog } from "./components/move-out-dialog";
+import { CreateTenantDialog } from "./components/-create-tenants";
+import { EditTenantDialog } from "./components/-edit-tenant";
+import { MoveOutDialog } from "./components/-move-out-dialog";
 
 export const Route = createFileRoute("/_dashboard/dashboard/tenants/")({
 	component: TenantsPage,

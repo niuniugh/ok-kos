@@ -12,9 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { getTenantFn } from "@/modules/tenant/serverFn";
-import { PaymentHistory } from "../../payments/components/payment-history";
-import { EditTenantDialog } from "../components/edit-tenant";
-import { MoveOutDialog } from "../components/move-out-dialog";
+import { PaymentHistory } from "../../payments/components/-payment-history";
+import { EditTenantDialog } from "../components/-edit-tenant";
+import { MoveOutDialog } from "../components/-move-out-dialog";
 
 export const Route = createFileRoute(
 	"/_dashboard/dashboard/tenants/$tenantId/",

@@ -30,13 +30,13 @@ import {
 import {
 	type EditablePayment,
 	EditPaymentDialog,
-} from "./components/edit-payment";
+} from "./components/-edit-payment";
 import {
 	currentMonth,
 	formatIDR,
 	formatMonth,
 	shiftMonth,
-} from "./utils/utils";
+} from "./utils/-utils";
 
 export const Route = createFileRoute("/_dashboard/dashboard/payments/")({
 	component: PaymentsPage,

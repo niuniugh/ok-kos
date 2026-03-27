@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { parseServerError } from "@/lib/utils";
 import { createPaymentFn, updatePaymentFn } from "@/modules/payment/serverFn";
-import { deriveStatus, formatIDR } from "../utils/utils";
+import { deriveStatus, formatIDR } from "../utils/-utils";
 
 export interface EditablePayment {
 	id: string;

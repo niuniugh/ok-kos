@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -92,59 +93,61 @@ function ProfilePage() {
 	if (!owner)
 		return (
 			<div className="flex items-center justify-center p-8">
-				<p className="text-sm text-muted-foreground">Could not load profile</p>
+				<p className="text-sm text-gray-400">Could not load profile</p>
 			</div>
 		);
 
 	return (
-		<div className="space-y-8 p-8 max-w-3xl mx-auto">
+		<div className="space-y-6 max-w-xl mx-auto">
 			<div>
-				<h1 className="text-3xl font-bold">Profile</h1>
-				<p className="text-sm text-muted-foreground">
-					Manage your account settings
-				</p>
+				<h1 className="text-2xl font-bold text-white">Profile</h1>
+				<p className="text-gray-400">Manage your account settings</p>
 			</div>
 
-			<div className="space-y-6 p-6 bg-white rounded-lg border shadow-sm max-w-md">
-				{/* Plan Info */}
-				<div>
-					<p className="text-sm font-medium text-gray-500">Plan</p>
-					<div className="mt-1">
-						<Badge
-							variant={owner.plan === "paid" ? "default" : "secondary"}
-							className="px-2 py-1 text-xs font-semibold"
-						>
-							{owner.plan === "free" ? "Free" : "Paid"}
-						</Badge>
-					</div>
-				</div>
-
-				{/* Member Since */}
-				<div>
-					<p className="text-sm font-medium text-gray-500">Member Since</p>
-					<p className="text-sm text-gray-200 mt-1">
-						{new Date(owner.createdAt).toLocaleDateString()}
-					</p>
-				</div>
-
-				{/* Contact Info */}
-				<div>
-					<p className="text-sm font-medium text-gray-500">Email</p>
-					<p className="text-sm text-gray-200 mt-1">{owner.email}</p>
-				</div>
-
-				<div className="h-px bg-zinc-700" />
-
-				{/* Edit Form */}
-				<form onSubmit={handleSave} className="space-y-4">
-					<div className="space-y-2">
-						<h2 className="text-lg font-semibold text-gray-300">
-							Edit Profile
-						</h2>
+			{/* Account Info */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-sm text-gray-400">
+						Account Information
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="flex items-center justify-between">
+						<div>
+							<p className="text-xs text-gray-500">Plan</p>
+							<Badge
+								variant={owner.plan === "paid" ? "default" : "secondary"}
+								className="mt-1"
+							>
+								{owner.plan === "free" ? "Free" : "Paid"}
+							</Badge>
+						</div>
+						<div className="text-right">
+							<p className="text-xs text-gray-500">Member Since</p>
+							<p className="text-sm text-white mt-1">
+								{new Date(owner.createdAt).toLocaleDateString("id-ID", {
+									day: "2-digit",
+									month: "long",
+									year: "numeric",
+								})}
+							</p>
+						</div>
 					</div>
 
-					<div className="space-y-4">
-						{/* Name Field */}
+					<div>
+						<p className="text-xs text-gray-500">Email</p>
+						<p className="text-sm text-white mt-1">{owner.email}</p>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Edit Form */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-sm text-gray-400">Edit Profile</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={handleSave} className="space-y-4">
 						<Field data-invalid={!!fieldErrors.name}>
 							<FieldLabel htmlFor="name" className="text-gray-300">
 								Name
@@ -158,14 +161,13 @@ function ProfilePage() {
 									setName(e.target.value);
 									setFieldErrors((prev) => ({ ...prev, name: undefined }));
 								}}
-								className="bg-zinc-800 border border-zinc-700 text-gray-200 placeholder-zinc-500 focus:border-zinc-500 rounded-md w-full"
+								className="bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
 							/>
 							<FieldError
 								errors={fieldErrors.name ? [{ message: fieldErrors.name }] : []}
 							/>
 						</Field>
 
-						{/* Email Field */}
 						<Field data-invalid={!!fieldErrors.email}>
 							<FieldLabel htmlFor="email" className="text-gray-300">
 								Email
@@ -179,7 +181,7 @@ function ProfilePage() {
 									setEmail(e.target.value);
 									setFieldErrors((prev) => ({ ...prev, email: undefined }));
 								}}
-								className="bg-zinc-800 border border-zinc-700 text-gray-200 placeholder-zinc-500 focus:border-zinc-500 rounded-md w-full"
+								className="bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
 							/>
 							<FieldError
 								errors={
@@ -187,13 +189,13 @@ function ProfilePage() {
 								}
 							/>
 						</Field>
-					</div>
 
-					<Button type="submit" className="w-full" disabled={isSaving}>
-						{isSaving ? "Saving..." : "Save Changes"}
-					</Button>
-				</form>
-			</div>
+						<Button type="submit" className="w-full" disabled={isSaving}>
+							{isSaving ? "Saving..." : "Save Changes"}
+						</Button>
+					</form>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }
