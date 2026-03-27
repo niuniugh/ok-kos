@@ -21,6 +21,7 @@ import { Route as DashboardDashboardReportsIndexRouteImport } from './routes/_da
 import { Route as DashboardDashboardPropertiesIndexRouteImport } from './routes/_dashboard/dashboard/properties/index'
 import { Route as DashboardDashboardProfileIndexRouteImport } from './routes/_dashboard/dashboard/profile/index'
 import { Route as DashboardDashboardPaymentsIndexRouteImport } from './routes/_dashboard/dashboard/payments/index'
+import { Route as DashboardDashboardTenantsTenantIdIndexRouteImport } from './routes/_dashboard/dashboard/tenants/$tenantId/index'
 import { Route as DashboardDashboardPropertiesPropertyIdIndexRouteImport } from './routes/_dashboard/dashboard/properties/$propertyId/index'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -88,6 +89,12 @@ const DashboardDashboardPaymentsIndexRoute =
     path: '/payments/',
     getParentRoute: () => DashboardDashboardRouteRoute,
   } as any)
+const DashboardDashboardTenantsTenantIdIndexRoute =
+  DashboardDashboardTenantsTenantIdIndexRouteImport.update({
+    id: '/tenants/$tenantId/',
+    path: '/tenants/$tenantId/',
+    getParentRoute: () => DashboardDashboardRouteRoute,
+  } as any)
 const DashboardDashboardPropertiesPropertyIdIndexRoute =
   DashboardDashboardPropertiesPropertyIdIndexRouteImport.update({
     id: '/properties/$propertyId/',
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/rooms/': typeof DashboardDashboardRoomsIndexRoute
   '/dashboard/tenants/': typeof DashboardDashboardTenantsIndexRoute
   '/dashboard/properties/$propertyId/': typeof DashboardDashboardPropertiesPropertyIdIndexRoute
+  '/dashboard/tenants/$tenantId/': typeof DashboardDashboardTenantsTenantIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -121,6 +129,7 @@ export interface FileRoutesByTo {
   '/dashboard/rooms': typeof DashboardDashboardRoomsIndexRoute
   '/dashboard/tenants': typeof DashboardDashboardTenantsIndexRoute
   '/dashboard/properties/$propertyId': typeof DashboardDashboardPropertiesPropertyIdIndexRoute
+  '/dashboard/tenants/$tenantId': typeof DashboardDashboardTenantsTenantIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -137,6 +146,7 @@ export interface FileRoutesById {
   '/_dashboard/dashboard/rooms/': typeof DashboardDashboardRoomsIndexRoute
   '/_dashboard/dashboard/tenants/': typeof DashboardDashboardTenantsIndexRoute
   '/_dashboard/dashboard/properties/$propertyId/': typeof DashboardDashboardPropertiesPropertyIdIndexRoute
+  '/_dashboard/dashboard/tenants/$tenantId/': typeof DashboardDashboardTenantsTenantIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/dashboard/rooms/'
     | '/dashboard/tenants/'
     | '/dashboard/properties/$propertyId/'
+    | '/dashboard/tenants/$tenantId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/dashboard/rooms'
     | '/dashboard/tenants'
     | '/dashboard/properties/$propertyId'
+    | '/dashboard/tenants/$tenantId'
   id:
     | '__root__'
     | '/'
@@ -181,6 +193,7 @@ export interface FileRouteTypes {
     | '/_dashboard/dashboard/rooms/'
     | '/_dashboard/dashboard/tenants/'
     | '/_dashboard/dashboard/properties/$propertyId/'
+    | '/_dashboard/dashboard/tenants/$tenantId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardPaymentsIndexRouteImport
       parentRoute: typeof DashboardDashboardRouteRoute
     }
+    '/_dashboard/dashboard/tenants/$tenantId/': {
+      id: '/_dashboard/dashboard/tenants/$tenantId/'
+      path: '/tenants/$tenantId'
+      fullPath: '/dashboard/tenants/$tenantId/'
+      preLoaderRoute: typeof DashboardDashboardTenantsTenantIdIndexRouteImport
+      parentRoute: typeof DashboardDashboardRouteRoute
+    }
     '/_dashboard/dashboard/properties/$propertyId/': {
       id: '/_dashboard/dashboard/properties/$propertyId/'
       path: '/properties/$propertyId'
@@ -295,6 +315,7 @@ interface DashboardDashboardRouteRouteChildren {
   DashboardDashboardRoomsIndexRoute: typeof DashboardDashboardRoomsIndexRoute
   DashboardDashboardTenantsIndexRoute: typeof DashboardDashboardTenantsIndexRoute
   DashboardDashboardPropertiesPropertyIdIndexRoute: typeof DashboardDashboardPropertiesPropertyIdIndexRoute
+  DashboardDashboardTenantsTenantIdIndexRoute: typeof DashboardDashboardTenantsTenantIdIndexRoute
 }
 
 const DashboardDashboardRouteRouteChildren: DashboardDashboardRouteRouteChildren =
@@ -309,6 +330,8 @@ const DashboardDashboardRouteRouteChildren: DashboardDashboardRouteRouteChildren
     DashboardDashboardTenantsIndexRoute: DashboardDashboardTenantsIndexRoute,
     DashboardDashboardPropertiesPropertyIdIndexRoute:
       DashboardDashboardPropertiesPropertyIdIndexRoute,
+    DashboardDashboardTenantsTenantIdIndexRoute:
+      DashboardDashboardTenantsTenantIdIndexRoute,
   }
 
 const DashboardDashboardRouteRouteWithChildren =
