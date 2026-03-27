@@ -1,13 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import type { PaymentStatus } from "generated/prisma/enums";
-import { ChevronLeft, ChevronRight, CreditCard } from "lucide-react";
+import {
+	Check,
+	ChevronLeft,
+	ChevronRight,
+	CreditCard,
+	Pencil,
+} from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -15,283 +21,350 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { getPaymentsFn } from "@/modules/payment/serverFn";
+import { Skeleton } from "@/components/ui/skeleton";
+import { parseServerError } from "@/lib/utils";
+import {
+	createPaymentFn,
+	getMonthlyPaymentSummaryFn,
+} from "@/modules/payment/serverFn";
 import {
 	type EditablePayment,
 	EditPaymentDialog,
 } from "./components/edit-payment";
-import { LogPaymentDialog } from "./components/log-payments";
-import { formatIDR } from "./utils/utils";
+import {
+	currentMonth,
+	formatIDR,
+	formatMonth,
+	shiftMonth,
+} from "./utils/utils";
 
 export const Route = createFileRoute("/_dashboard/dashboard/payments/")({
 	component: PaymentsPage,
 });
 
-const PAGE_SIZE = 20;
-
 function PaymentsPage() {
-	const [monthFilter, setMonthFilter] = useState("");
-	const [tenantSearch, setTenantSearch] = useState("");
+	const queryClient = useQueryClient();
+	const [month, setMonth] = useState(currentMonth);
+	const [propertyId, setPropertyId] = useState<string | undefined>(undefined);
+	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [editPayment, setEditPayment] = useState<EditablePayment | null>(null);
-	const [page, setPage] = useState(1);
+	const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
 
-	// Reset to page 1 on any filter change
-	const handleMonthChange = (v: string) => {
-		setMonthFilter(v);
-		setPage(1);
-	};
-	const handleTenantSearch = (v: string) => {
-		setTenantSearch(v);
-		setPage(1);
-	};
-	const handleStatusChange = (v: string) => {
-		setStatusFilter(v);
-		setPage(1);
-	};
-
-	const { data: paymentsRes, isLoading } = useQuery({
-		queryKey: ["payments", monthFilter, statusFilter, page],
-		queryFn: () =>
-			getPaymentsFn({
-				data: {
-					month: monthFilter || undefined,
-					status:
-						statusFilter !== "all"
-							? (statusFilter as "paid" | "unpaid" | "partial")
-							: undefined,
-					page,
-					limit: PAGE_SIZE,
-				},
-			}),
+	const { data, isLoading } = useQuery({
+		queryKey: ["monthly-payments", month, propertyId],
+		queryFn: () => getMonthlyPaymentSummaryFn({ data: { month, propertyId } }),
 	});
 
-	const allPayments = paymentsRes?.data ?? [];
-	const payments = tenantSearch
-		? allPayments.filter((p) =>
-				p.tenantName.toLowerCase().includes(tenantSearch.toLowerCase()),
-			)
-		: allPayments;
+	const markPaidMutation = useMutation({
+		mutationFn: (tenant: { tenantId: string; amountDue: number }) =>
+			createPaymentFn({
+				data: {
+					tenantId: tenant.tenantId,
+					month,
+					amountDue: tenant.amountDue,
+					amountPaid: tenant.amountDue,
+					status: "paid",
+				},
+			}),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["monthly-payments"] });
+			queryClient.invalidateQueries({ queryKey: ["payments"] });
+			toast.success("Payment marked as paid");
+			setMarkingPaidId(null);
+		},
+		onError: (err) => {
+			toast.error(parseServerError(err));
+			setMarkingPaidId(null);
+		},
+	});
 
-	const meta = paymentsRes?.meta;
-	const totalPages = meta ? Math.ceil(meta.total / meta.limit) : 1;
-	const from = meta ? (meta.page - 1) * meta.limit + 1 : 0;
-	const to = meta ? Math.min(meta.page * meta.limit, meta.total) : 0;
+	const summary = data?.summary;
+	const properties = data?.properties ?? [];
+
+	const filteredTenants = (data?.tenants ?? []).filter((t) => {
+		if (search && !t.tenantName.toLowerCase().includes(search.toLowerCase()))
+			return false;
+		if (
+			statusFilter === "unpaid" &&
+			t.status !== "unpaid" &&
+			t.status !== "no_record"
+		)
+			return false;
+		if (
+			statusFilter !== "all" &&
+			statusFilter !== "unpaid" &&
+			t.status !== statusFilter
+		)
+			return false;
+		return true;
+	});
+
+	const statCards = [
+		{
+			label: "Total Tenants",
+			value: summary?.totalTenants ?? 0,
+			color: "text-white",
+		},
+		{
+			label: "Paid",
+			value: summary?.paidCount ?? 0,
+			color: "text-green-400",
+		},
+		{
+			label: "Unpaid",
+			value: summary?.unpaidCount ?? 0,
+			color: "text-red-400",
+		},
+		{
+			label: "Collected",
+			value: `${formatIDR(summary?.totalCollected ?? 0)} / ${formatIDR(summary?.totalDue ?? 0)}`,
+			color: "text-white",
+		},
+	];
 
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex justify-between items-center">
+			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="text-2xl font-bold text-white">Payments</h1>
-					<p className="text-gray-400">Track monthly rent payments</p>
+					<p className="text-gray-400">Manage monthly rent collection</p>
 				</div>
-				<LogPaymentDialog />
+
+				<div className="flex items-center gap-3">
+					{/* Property selector */}
+					{properties.length > 1 && (
+						<Select
+							value={propertyId ?? "all"}
+							onValueChange={(v) => setPropertyId(v === "all" ? undefined : v)}
+						>
+							<SelectTrigger className="w-40">
+								<SelectValue placeholder="All Properties" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Properties</SelectItem>
+								{properties.map((p) => (
+									<SelectItem key={p.id} value={p.id}>
+										{p.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					)}
+
+					{/* Month navigator */}
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							onClick={() => setMonth((m) => shiftMonth(m, -1))}
+							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+						>
+							<ChevronLeft className="h-4 w-4" />
+						</button>
+						<span className="w-32 text-center text-sm text-gray-300">
+							{formatMonth(month)}
+						</span>
+						<button
+							type="button"
+							onClick={() => setMonth((m) => shiftMonth(m, 1))}
+							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+						>
+							<ChevronRight className="h-4 w-4" />
+						</button>
+					</div>
+				</div>
+			</div>
+
+			{/* Summary cards */}
+			<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+				{statCards.map(({ label, value, color }) => (
+					<Card key={label}>
+						<CardHeader>
+							<CardTitle className="text-sm text-gray-400">{label}</CardTitle>
+						</CardHeader>
+						<CardContent>
+							{isLoading ? (
+								<Skeleton className="h-8 w-20" />
+							) : (
+								<p className={`text-2xl font-semibold ${color}`}>{value}</p>
+							)}
+						</CardContent>
+					</Card>
+				))}
 			</div>
 
 			{/* Filters */}
-			<div className="flex gap-3 flex-wrap items-end">
-				<div className="space-y-1.5">
-					<Label className="text-xs text-gray-500">Month</Label>
-					<Input
-						type="month"
-						value={monthFilter}
-						onChange={(e) => handleMonthChange(e.target.value)}
-						className="w-44 bg-zinc-900 border-zinc-700 text-white"
-					/>
-				</div>
-
-				<div className="space-y-1.5">
-					<Label className="text-xs text-gray-500">Tenant</Label>
-					<Input
-						placeholder="Search tenant..."
-						value={tenantSearch}
-						onChange={(e) => handleTenantSearch(e.target.value)}
-						className="w-48 bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
-					/>
-				</div>
-
-				<div className="space-y-1.5">
-					<Label className="text-xs text-gray-500">Status</Label>
-					<Select value={statusFilter} onValueChange={handleStatusChange}>
-						<SelectTrigger className="w-36 bg-zinc-900 border-zinc-700 text-white">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent className="bg-zinc-800 border-zinc-700">
-							<SelectItem value="all" className="text-white focus:bg-zinc-700">
-								All statuses
-							</SelectItem>
-							<SelectItem value="paid" className="text-white focus:bg-zinc-700">
-								Paid
-							</SelectItem>
-							<SelectItem
-								value="partial"
-								className="text-white focus:bg-zinc-700"
-							>
-								Partial
-							</SelectItem>
-							<SelectItem
-								value="unpaid"
-								className="text-white focus:bg-zinc-700"
-							>
-								Unpaid
-							</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
+			<div className="flex gap-3 flex-wrap items-center">
+				<Input
+					placeholder="Search tenant..."
+					value={search}
+					onChange={(e) => setSearch(e.target.value)}
+					className="w-48 bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
+				/>
+				<Select value={statusFilter} onValueChange={setStatusFilter}>
+					<SelectTrigger className="w-36 bg-zinc-900 border-zinc-700 text-white">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All statuses</SelectItem>
+						<SelectItem value="paid">Paid</SelectItem>
+						<SelectItem value="partial">Partial</SelectItem>
+						<SelectItem value="unpaid">Unpaid</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
-			{/* Content */}
+			{/* Tenant list */}
 			{isLoading ? (
-				<div className="text-gray-400 text-sm py-10">Loading payments...</div>
-			) : payments.length === 0 ? (
+				<div className="space-y-3">
+					{[1, 2, 3].map((i) => (
+						<Skeleton key={i} className="h-20 w-full" />
+					))}
+				</div>
+			) : filteredTenants.length === 0 ? (
 				<EmptyState
 					icon={CreditCard}
-					title="No payments found"
-					description="Log your first payment using the button above."
+					title="No tenants found"
+					description={
+						data?.tenants.length === 0
+							? "Add tenants to start tracking payments."
+							: "No tenants match your filters."
+					}
 				/>
 			) : (
-				<>
-					<div className="border border-zinc-800 rounded-lg overflow-hidden">
-						<table className="w-full text-sm">
-							<thead>
-								<tr className="border-b border-zinc-800 bg-zinc-900/50">
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
-										Tenant
-									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
-										Room
-									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
-										Month
-									</th>
-									<th className="text-right px-4 py-3 text-gray-400 font-medium">
-										Amount Due
-									</th>
-									<th className="text-right px-4 py-3 text-gray-400 font-medium">
-										Amount Paid
-									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
-										Status
-									</th>
-									<th className="text-right px-4 py-3 text-gray-400 font-medium">
-										Actions
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{payments.map((p, i) => (
-									<tr
-										key={p.id}
-										className={[
-											"border-b border-zinc-800 last:border-0 transition-colors hover:bg-zinc-800/40",
-											i % 2 === 0 ? "bg-zinc-900" : "bg-zinc-900/60",
-										].join(" ")}
+				<div className="space-y-3">
+					{filteredTenants.map((t) => {
+						const isPaid = t.status === "paid";
+						const isMarking = markingPaidId === t.tenantId;
+
+						return (
+							<div
+								key={t.tenantId}
+								className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:flex-row sm:items-center sm:justify-between"
+							>
+								{/* Left: tenant info */}
+								<div className="min-w-0 flex-1">
+									<div className="flex items-center gap-2">
+										<span className="font-medium text-white truncate">
+											{t.tenantName}
+										</span>
+										<StatusBadge status={t.status} />
+									</div>
+									<p className="text-sm text-gray-400 mt-0.5">
+										Room {t.roomNumber} · {t.propertyName}
+									</p>
+								</div>
+
+								{/* Middle: amounts */}
+								<div className="flex items-center gap-6 text-sm">
+									<div>
+										<p className="text-gray-500 text-xs">Due</p>
+										<p className="text-white font-medium">
+											{formatIDR(t.amountDue)}
+										</p>
+									</div>
+									<div>
+										<p className="text-gray-500 text-xs">Paid</p>
+										<p
+											className={
+												isPaid
+													? "text-green-400 font-medium"
+													: "text-white font-medium"
+											}
+										>
+											{formatIDR(t.amountPaid)}
+										</p>
+									</div>
+									{!isPaid && t.amountDue - t.amountPaid > 0 && (
+										<div>
+											<p className="text-gray-500 text-xs">Outstanding</p>
+											<p className="text-red-400 font-medium">
+												{formatIDR(t.amountDue - t.amountPaid)}
+											</p>
+										</div>
+									)}
+								</div>
+
+								{/* Right: actions */}
+								<div className="flex items-center gap-2 shrink-0">
+									{!isPaid && (
+										<Button
+											size="sm"
+											className="bg-green-600 hover:bg-green-700 text-white"
+											disabled={isMarking}
+											onClick={() => {
+												setMarkingPaidId(t.tenantId);
+												markPaidMutation.mutate({
+													tenantId: t.tenantId,
+													amountDue: t.amountDue,
+												});
+											}}
+										>
+											<Check className="h-3.5 w-3.5 mr-1" />
+											{isMarking ? "Saving..." : "Mark Paid"}
+										</Button>
+									)}
+									<Button
+										variant="ghost"
+										size="sm"
+										className="text-gray-400 hover:text-white hover:bg-zinc-700"
+										onClick={() =>
+											setEditPayment({
+												id: t.paymentId ?? "",
+												tenantId: t.tenantId,
+												amountDue: t.amountDue,
+												amountPaid: t.amountPaid,
+												status: (t.status === "no_record"
+													? "unpaid"
+													: t.status) as EditablePayment["status"],
+												tenantName: t.tenantName,
+												month,
+												mode: t.paymentId ? "edit" : "create",
+											})
+										}
 									>
-										<td className="px-4 py-3 text-white font-medium">
-											{p.tenantName}
-										</td>
-										<td className="px-4 py-3 text-gray-300">{p.roomNumber}</td>
-										<td className="px-4 py-3 text-gray-300">{p.month}</td>
-										<td className="px-4 py-3 text-gray-300 text-right">
-											{formatIDR(p.amountDue)}
-										</td>
-										<td className="px-4 py-3 text-gray-300 text-right">
-											{formatIDR(p.amountPaid)}
-										</td>
-										<td className="px-4 py-3">
-											{p.status === "paid" ? (
-												<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
-													Paid
-												</Badge>
-											) : p.status === "partial" ? (
-												<Badge className="bg-yellow-900/60 text-yellow-400 border border-yellow-800 hover:bg-yellow-900/60">
-													Partial
-												</Badge>
-											) : (
-												<Badge className="bg-red-900/60 text-red-400 border border-red-800 hover:bg-red-900/60">
-													Unpaid
-												</Badge>
-											)}
-										</td>
-										<td className="px-4 py-3 text-right">
-											<Button
-												variant="ghost"
-												size="sm"
-												className="text-gray-400 hover:text-white hover:bg-zinc-700"
-												onClick={() =>
-													setEditPayment({
-														id: p.id,
-														amountDue: p.amountDue,
-														amountPaid: p.amountPaid,
-														status: p.status as PaymentStatus,
-														tenantName: p.tenantName,
-														month: p.month,
-													})
-												}
-											>
-												Edit
-											</Button>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-
-					{editPayment && (
-						<EditPaymentDialog
-							payment={editPayment}
-							open={!!editPayment}
-							onOpenChange={(o) => {
-								if (!o) setEditPayment(null);
-							}}
-						/>
-					)}
-
-					{/* Pagination — only shown when there's more than one page */}
-					{meta && meta.total > PAGE_SIZE && (
-						<div className="flex items-center justify-between text-sm">
-							<p className="text-gray-400">
-								Showing{" "}
-								<span className="text-white font-medium">
-									{from}–{to}
-								</span>{" "}
-								of <span className="text-white font-medium">{meta.total}</span>{" "}
-								payments
-							</p>
-
-							<div className="flex items-center gap-2">
-								<Button
-									variant="ghost"
-									size="sm"
-									className="text-gray-400 hover:text-white hover:bg-zinc-800 gap-1"
-									onClick={() => setPage((p) => p - 1)}
-									disabled={page <= 1}
-								>
-									<ChevronLeft className="w-4 h-4" />
-									Prev
-								</Button>
-
-								<span className="text-gray-400 tabular-nums">
-									{page} / {totalPages}
-								</span>
-
-								<Button
-									variant="ghost"
-									size="sm"
-									className="text-gray-400 hover:text-white hover:bg-zinc-800 gap-1"
-									onClick={() => setPage((p) => p + 1)}
-									disabled={page >= totalPages}
-								>
-									Next
-									<ChevronRight className="w-4 h-4" />
-								</Button>
+										<Pencil className="h-3.5 w-3.5 mr-1" />
+										Edit
+									</Button>
+								</div>
 							</div>
-						</div>
-					)}
-				</>
+						);
+					})}
+				</div>
+			)}
+
+			{editPayment && (
+				<EditPaymentDialog
+					payment={editPayment}
+					open={!!editPayment}
+					onOpenChange={(o) => {
+						if (!o) setEditPayment(null);
+					}}
+				/>
 			)}
 		</div>
+	);
+}
+
+function StatusBadge({ status }: { status: string }) {
+	if (status === "paid") {
+		return (
+			<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
+				Paid
+			</Badge>
+		);
+	}
+	if (status === "partial") {
+		return (
+			<Badge className="bg-yellow-900/60 text-yellow-400 border border-yellow-800 hover:bg-yellow-900/60">
+				Partial
+			</Badge>
+		);
+	}
+	return (
+		<Badge className="bg-red-900/60 text-red-400 border border-red-800 hover:bg-red-900/60">
+			Unpaid
+		</Badge>
 	);
 }

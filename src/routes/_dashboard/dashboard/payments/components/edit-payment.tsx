@@ -14,16 +14,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { parseServerError } from "@/lib/utils";
-import { updatePaymentFn } from "@/modules/payment/serverFn";
+import { createPaymentFn, updatePaymentFn } from "@/modules/payment/serverFn";
 import { deriveStatus, formatIDR } from "../utils/utils";
 
 export interface EditablePayment {
 	id: string;
+	tenantId: string;
 	amountDue: number;
 	amountPaid: number;
 	status: PaymentStatus;
 	tenantName: string;
 	month: string;
+	mode: "edit" | "create";
 }
 
 interface EditPaymentDialogProps {
@@ -42,16 +44,30 @@ export function EditPaymentDialog({
 	const [amountPaid, setAmountPaid] = useState(payment.amountPaid);
 
 	const mutation = useMutation({
-		mutationFn: (newAmountPaid: number) =>
-			updatePaymentFn({
+		mutationFn: (newAmountPaid: number) => {
+			const status = deriveStatus(payment.amountDue, newAmountPaid);
+			if (payment.mode === "create") {
+				return createPaymentFn({
+					data: {
+						tenantId: payment.tenantId,
+						month: payment.month,
+						amountDue: payment.amountDue,
+						amountPaid: newAmountPaid,
+						status,
+					},
+				});
+			}
+			return updatePaymentFn({
 				data: {
 					id: payment.id,
 					amountPaid: newAmountPaid,
-					status: deriveStatus(payment.amountDue, newAmountPaid),
+					status,
 				},
-			}),
+			});
+		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["payments"] });
+			queryClient.invalidateQueries({ queryKey: ["monthly-payments"] });
 			toast.success("Payment updated");
 			onOpenChange(false);
 		},
@@ -81,8 +97,14 @@ export function EditPaymentDialog({
 		>
 			<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle className="text-white">Edit Payment</DialogTitle>
-					<DialogDescription>Update payment details.</DialogDescription>
+					<DialogTitle className="text-white">
+						{payment.mode === "create" ? "Record Payment" : "Edit Payment"}
+					</DialogTitle>
+					<DialogDescription>
+						{payment.mode === "create"
+							? "Record a payment for this tenant."
+							: "Update payment details."}
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="text-sm text-gray-400 -mt-1">
@@ -90,7 +112,7 @@ export function EditPaymentDialog({
 				</div>
 
 				<form
-					key={payment.id}
+					key={`${payment.tenantId}-${payment.month}`}
 					onSubmit={handleSubmit}
 					className="space-y-4 pt-1"
 				>
@@ -149,7 +171,7 @@ export function EditPaymentDialog({
 
 					<Button
 						type="submit"
-						className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+						className="w-full"
 						disabled={mutation.isPending}
 					>
 						{mutation.isPending ? "Saving..." : "Save Changes"}

@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	ChartContainer,
+	ChartLegend,
+	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -28,9 +30,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { currentMonth } from "@/lib/utils";
+import { currentMonth, formatIDR } from "@/lib/utils";
 import {
 	getDashboardSummaryFn,
+	getIncomeTrendFn,
 	getOwnerPropertiesFn,
 } from "@/modules/dashboard/serverFn";
 
@@ -50,6 +53,14 @@ function formatMonth(month: string) {
 		month: "long",
 		year: "numeric",
 	});
+}
+
+function formatMonthShort(month: string, endMonth: string) {
+	const [y, m] = month.split("-").map(Number);
+	const [endY] = endMonth.split("-").map(Number);
+	const d = new Date(y, m - 1);
+	const short = d.toLocaleString("default", { month: "short" });
+	return y !== endY ? `${short} '${String(y).slice(2)}` : short;
 }
 
 const chartConfig = {
@@ -72,7 +83,14 @@ function DashboardPage() {
 		enabled: !propertiesLoading,
 	});
 
+	const { data: trendData, isLoading: trendLoading } = useQuery({
+		queryKey: ["income-trend", propertyId, month],
+		queryFn: () => getIncomeTrendFn({ data: { propertyId, month } }),
+		enabled: !propertiesLoading,
+	});
+
 	const isLoading = propertiesLoading || summaryLoading;
+	const chartLoading = propertiesLoading || trendLoading;
 
 	if (!isLoading && summary && !summary.hasProperties) {
 		return (
@@ -91,15 +109,11 @@ function DashboardPage() {
 		);
 	}
 
-	const chartData = summary
-		? [
-				{
-					name: formatMonth(month),
-					collected: summary.stats.totalCollected,
-					outstanding: summary.stats.totalOutstanding,
-				},
-			]
-		: [];
+	const chartData = (trendData ?? []).map((item) => ({
+		name: formatMonthShort(item.month, month),
+		collected: item.collected,
+		outstanding: item.outstanding,
+	}));
 
 	const statCards = [
 		{ label: "Total Rooms", value: summary?.stats.totalRooms ?? 0 },
@@ -189,32 +203,38 @@ function DashboardPage() {
 				))}
 			</div>
 
-			{/* Income breakdown chart */}
+			{/* Income trend chart */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">
-						Income Breakdown
-					</CardTitle>
+					<CardTitle className="text-sm text-gray-400">Income Trend</CardTitle>
 				</CardHeader>
 				<CardContent>
-					{isLoading ? (
+					{chartLoading ? (
 						<Skeleton className="h-48 w-full" />
 					) : (
 						<ChartContainer config={chartConfig} className="h-48 w-full">
 							<BarChart data={chartData}>
-								<CartesianGrid strokeDasharray="3 3" />
-								<XAxis dataKey="name" />
-								<YAxis />
+								<CartesianGrid strokeDasharray="3 3" vertical={false} />
+								<XAxis dataKey="name" tickLine={false} axisLine={false} />
+								<YAxis
+									tickFormatter={(value) => formatIDR(value)}
+									width={90}
+									tickLine={false}
+									axisLine={false}
+								/>
 								<ChartTooltip content={<ChartTooltipContent />} />
+								<ChartLegend content={<ChartLegendContent />} />
 								<Bar
 									dataKey="collected"
+									stackId="income"
 									fill={chartConfig.collected.color}
-									radius={4}
+									radius={[0, 0, 0, 0]}
 								/>
 								<Bar
 									dataKey="outstanding"
+									stackId="income"
 									fill={chartConfig.outstanding.color}
-									radius={4}
+									radius={[4, 4, 0, 0]}
 								/>
 							</BarChart>
 						</ChartContainer>

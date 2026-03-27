@@ -4,6 +4,18 @@ import { getOwnerById, verifyPropertyOwnership } from "@/modules/auth/helpers";
 import { useAppSession } from "../sessions/appSession";
 import { DashboardSummaryInputSchema } from "./schema";
 
+function generateMonthRange(endMonth: string, count: number): string[] {
+	const [y, m] = endMonth.split("-").map(Number);
+	const months: string[] = [];
+	for (let i = count - 1; i >= 0; i--) {
+		const d = new Date(y, m - 1 - i, 1);
+		months.push(
+			`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+		);
+	}
+	return months;
+}
+
 export const getOwnerPropertiesFn = createServerFn({ method: "GET" }).handler(
 	async () => {
 		const session = await useAppSession();
@@ -125,4 +137,69 @@ export const getDashboardSummaryFn = createServerFn({ method: "GET" })
 			},
 			overdueTenants,
 		};
+	});
+
+export const getIncomeTrendFn = createServerFn({ method: "GET" })
+	.inputValidator(DashboardSummaryInputSchema)
+	.handler(async ({ data }) => {
+		const session = await useAppSession();
+		if (!session.data?.id) throw new Error("Unauthorized");
+
+		const owner = await getOwnerById(session.data.id);
+
+		const properties = await prisma.property.findMany({
+			where: { ownerId: owner.id },
+			select: { id: true },
+		});
+
+		if (properties.length === 0) return [];
+
+		const propertyId = data.propertyId;
+		if (propertyId) {
+			await verifyPropertyOwnership(owner.id, propertyId);
+		}
+		const propertyFilter = propertyId
+			? { propertyId }
+			: { propertyId: { in: properties.map((p) => p.id) } };
+
+		const months = generateMonthRange(data.month, 6);
+
+		const payments = await prisma.payment.findMany({
+			where: {
+				month: { in: months },
+				tenant: {
+					status: "active",
+					room: propertyFilter,
+				},
+			},
+			select: {
+				month: true,
+				amountDue: true,
+				amountPaid: true,
+			},
+		});
+
+		const grouped = new Map<
+			string,
+			{ collected: number; outstanding: number }
+		>();
+		for (const m of months) {
+			grouped.set(m, { collected: 0, outstanding: 0 });
+		}
+		for (const p of payments) {
+			const entry = grouped.get(p.month);
+			if (entry) {
+				entry.collected += p.amountPaid;
+				entry.outstanding += p.amountDue - p.amountPaid;
+			}
+		}
+
+		return months.map((m) => {
+			const entry = grouped.get(m) ?? { collected: 0, outstanding: 0 };
+			return {
+				month: m,
+				collected: entry.collected,
+				outstanding: entry.outstanding,
+			};
+		});
 	});

@@ -61,5 +61,10 @@ export const GetPaymentSchema = z.object({
 	id: z.string().uuid("Invalid payment ID"),
 });
 
+export const GetMonthlyPaymentSummarySchema = z.object({
+	month: z.string().regex(/^\d{4}-\d{2}$/, "Month must be in YYYY-MM format"),
+	propertyId: z.string().uuid("Invalid property ID").optional(),
+});
+
 export type CreatePaymentInput = z.infer<typeof CreatePaymentSchema>;
 export type UpdatePaymentInput = z.infer<typeof UpdatePaymentSchema>;
