@@ -14,13 +14,9 @@ COPY . .
 RUN pnpm prisma generate
 RUN pnpm build
 
-# Sync CSS hashes: server and client builds may produce different Tailwind CSS hashes.
-# Copy the client CSS file to match the filename the server expects.
-RUN SERVER_CSS=$(grep -roh 'styles-[A-Za-z0-9_-]*\.css' dist/server/ | head -1) && \
-    CLIENT_CSS=$(ls dist/client/assets/styles-*.css | head -1) && \
-    if [ -n "$SERVER_CSS" ] && [ -n "$CLIENT_CSS" ] && [ "$(basename "$CLIENT_CSS")" != "$SERVER_CSS" ]; then \
-      cp "$CLIENT_CSS" "dist/client/assets/$SERVER_CSS"; \
-    fi
+# Fix TailwindCSS v4 hash mismatch between server/client Vite environments.
+# Patches server JS files to reference actual client asset filenames.
+RUN sh scripts/sync-assets.sh
 
 # Stage 3: Production image
 FROM node:24-slim AS production
