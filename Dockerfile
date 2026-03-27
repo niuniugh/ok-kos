@@ -20,6 +20,7 @@ RUN sh scripts/sync-assets.sh
 
 # Stage 3: Production image
 FROM node:24-slim AS production
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
