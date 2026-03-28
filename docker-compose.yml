@@ -19,14 +19,38 @@ services:
     build: .
     container_name: okkos-app
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-okkos}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-okkos}
       SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      COOKIE_SECURE: "true"
     depends_on:
       db:
         condition: service_healthy
 
+  nginx:
+    image: nginx:alpine
+    container_name: okkos-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+    depends_on:
+      - app
+
+  certbot:
+    image: certbot/certbot
+    container_name: okkos-certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+
 volumes:
   okkos_data:
+  certbot_www:
+  certbot_conf:
