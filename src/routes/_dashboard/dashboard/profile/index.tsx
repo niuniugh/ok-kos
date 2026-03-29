@@ -31,7 +31,6 @@ function ProfilePage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 
-	// Load owner data on mount
 	useEffect(() => {
 		async function loadOwner() {
 			try {
@@ -93,38 +92,38 @@ function ProfilePage() {
 	if (!owner)
 		return (
 			<div className="flex items-center justify-center p-8">
-				<p className="text-sm text-gray-400">Could not load profile</p>
+				<p className="text-sm text-muted-foreground">Could not load profile</p>
 			</div>
 		);
 
 	return (
 		<div className="space-y-6 max-w-xl mx-auto">
 			<div>
-				<h1 className="text-2xl font-bold text-white">Profile</h1>
-				<p className="text-gray-400">Manage your account settings</p>
+				<h1 className="text-2xl font-bold">Profile</h1>
+				<p className="text-muted-foreground">Manage your account settings</p>
 			</div>
 
 			{/* Account Info */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">
+					<CardTitle className="text-sm text-muted-foreground">
 						Account Information
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="flex items-center justify-between">
 						<div>
-							<p className="text-xs text-gray-500">Plan</p>
+							<p className="text-xs text-muted-foreground">Plan</p>
 							<Badge
-								variant={owner.plan === "paid" ? "default" : "secondary"}
+								variant={owner.plan === "paid" ? "success" : "secondary"}
 								className="mt-1"
 							>
 								{owner.plan === "free" ? "Free" : "Paid"}
 							</Badge>
 						</div>
 						<div className="text-right">
-							<p className="text-xs text-gray-500">Member Since</p>
-							<p className="text-sm text-white mt-1">
+							<p className="text-xs text-muted-foreground">Member Since</p>
+							<p className="text-sm mt-1">
 								{new Date(owner.createdAt).toLocaleDateString("id-ID", {
 									day: "2-digit",
 									month: "long",
@@ -135,8 +134,8 @@ function ProfilePage() {
 					</div>
 
 					<div>
-						<p className="text-xs text-gray-500">Email</p>
-						<p className="text-sm text-white mt-1">{owner.email}</p>
+						<p className="text-xs text-muted-foreground">Email</p>
+						<p className="text-sm mt-1">{owner.email}</p>
 					</div>
 				</CardContent>
 			</Card>
@@ -144,14 +143,14 @@ function ProfilePage() {
 			{/* Edit Form */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">Edit Profile</CardTitle>
+					<CardTitle className="text-sm text-muted-foreground">
+						Edit Profile
+					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={handleSave} className="space-y-4">
 						<Field data-invalid={!!fieldErrors.name}>
-							<FieldLabel htmlFor="name" className="text-gray-300">
-								Name
-							</FieldLabel>
+							<FieldLabel htmlFor="name">Name</FieldLabel>
 							<Input
 								id="name"
 								type="text"
@@ -161,7 +160,6 @@ function ProfilePage() {
 									setName(e.target.value);
 									setFieldErrors((prev) => ({ ...prev, name: undefined }));
 								}}
-								className="bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
 							/>
 							<FieldError
 								errors={fieldErrors.name ? [{ message: fieldErrors.name }] : []}
@@ -169,9 +167,7 @@ function ProfilePage() {
 						</Field>
 
 						<Field data-invalid={!!fieldErrors.email}>
-							<FieldLabel htmlFor="email" className="text-gray-300">
-								Email
-							</FieldLabel>
+							<FieldLabel htmlFor="email">Email</FieldLabel>
 							<Input
 								id="email"
 								type="email"
@@ -181,7 +177,6 @@ function ProfilePage() {
 									setEmail(e.target.value);
 									setFieldErrors((prev) => ({ ...prev, email: undefined }));
 								}}
-								className="bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
 							/>
 							<FieldError
 								errors={

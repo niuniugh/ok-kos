@@ -39,8 +39,8 @@ function ErrorComponent({ error }: { error: Error }) {
 	const router = useRouter();
 	return (
 		<div className="flex min-h-screen flex-col items-center justify-center gap-4">
-			<AlertCircle className="h-10 w-10 text-red-500" />
-			<p className="text-white">{error.message || "Something went wrong."}</p>
+			<AlertCircle className="h-10 w-10 text-destructive" />
+			<p>{error.message || "Something went wrong."}</p>
 			<Button variant="outline" onClick={() => router.invalidate()}>
 				Try again
 			</Button>

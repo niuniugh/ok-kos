@@ -69,8 +69,8 @@ function PropertiesPage() {
 		<div className="space-y-6">
 			<div className="flex justify-between items-center">
 				<div>
-					<h1 className="text-2xl font-bold text-white">Properties</h1>
-					<p className="text-gray-400">Manage your kos properties</p>
+					<h1 className="text-2xl font-bold">Properties</h1>
+					<p className="text-muted-foreground">Manage your kos properties</p>
 				</div>
 
 				{!isLoading && properties && properties.length > 0 && (
@@ -124,7 +124,7 @@ function PropertiesPage() {
 			</Dialog>
 
 			{isLoading ? (
-				<div className="text-gray-400">Loading properties...</div>
+				<div className="text-muted-foreground">Loading properties...</div>
 			) : properties?.length === 0 ? (
 				<EmptyState
 					icon={Building2}
@@ -142,9 +142,9 @@ function PropertiesPage() {
 							params={{ propertyId: property.id }}
 							className="block group"
 						>
-							<Card className="h-full hover:border-zinc-500 transition-colors bg-zinc-900 border-zinc-800">
+							<Card className="h-full hover:border-primary/50 transition-colors">
 								<CardHeader>
-									<CardTitle className="text-lg text-white group-hover:text-blue-400 transition-colors">
+									<CardTitle className="text-lg group-hover:text-primary transition-colors">
 										{property.name}
 									</CardTitle>
 									<CardDescription className="line-clamp-1">
@@ -152,8 +152,8 @@ function PropertiesPage() {
 									</CardDescription>
 								</CardHeader>
 								<CardContent>
-									<div className="flex items-center text-sm text-gray-400">
-										<span className="bg-zinc-800 px-2 py-1 rounded-md">
+									<div className="flex items-center text-sm text-muted-foreground">
+										<span className="bg-muted px-2 py-1 rounded-md">
 											{property._count.rooms} Rooms
 										</span>
 									</div>

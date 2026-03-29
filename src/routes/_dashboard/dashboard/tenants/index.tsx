@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_dashboard/dashboard/tenants/")({
 	component: TenantsPage,
 });
 
-const PAGE_SIZE = 20; // maksimum satu page ada berapa entri data
+const PAGE_SIZE = 20;
 
 function TenantsPage() {
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -74,8 +74,8 @@ function TenantsPage() {
 			{/* Header */}
 			<div className="flex justify-between items-center">
 				<div>
-					<h1 className="text-2xl font-bold text-white">Tenants</h1>
-					<p className="text-gray-400">Manage your tenants</p>
+					<h1 className="text-2xl font-bold">Tenants</h1>
+					<p className="text-muted-foreground">Manage your tenants</p>
 				</div>
 				<Button onClick={() => setIsCreateOpen(true)}>Add Tenant</Button>
 			</div>
@@ -83,19 +83,13 @@ function TenantsPage() {
 			{/* Filters */}
 			<div className="flex gap-3 flex-wrap">
 				<Select value={propertyFilter} onValueChange={handlePropertyFilter}>
-					<SelectTrigger className="w-48 bg-zinc-900 border-zinc-700 text-white">
+					<SelectTrigger className="w-48">
 						<SelectValue placeholder="All properties" />
 					</SelectTrigger>
-					<SelectContent className="bg-zinc-800 border-zinc-700">
-						<SelectItem value="all" className="text-white focus:bg-zinc-700">
-							All properties
-						</SelectItem>
+					<SelectContent>
+						<SelectItem value="all">All properties</SelectItem>
 						{properties.map((p) => (
-							<SelectItem
-								key={p.id}
-								value={p.id}
-								className="text-white focus:bg-zinc-700"
-							>
+							<SelectItem key={p.id} value={p.id}>
 								{p.name}
 							</SelectItem>
 						))}
@@ -103,29 +97,20 @@ function TenantsPage() {
 				</Select>
 
 				<Select value={statusFilter} onValueChange={handleStatusFilter}>
-					<SelectTrigger className="w-40 bg-zinc-900 border-zinc-700 text-white">
+					<SelectTrigger className="w-40">
 						<SelectValue placeholder="All statuses" />
 					</SelectTrigger>
-					<SelectContent className="bg-zinc-800 border-zinc-700">
-						<SelectItem value="all" className="text-white focus:bg-zinc-700">
-							All statuses
-						</SelectItem>
-						<SelectItem value="active" className="text-white focus:bg-zinc-700">
-							Active
-						</SelectItem>
-						<SelectItem
-							value="inactive"
-							className="text-white focus:bg-zinc-700"
-						>
-							Inactive
-						</SelectItem>
+					<SelectContent>
+						<SelectItem value="all">All statuses</SelectItem>
+						<SelectItem value="active">Active</SelectItem>
+						<SelectItem value="inactive">Inactive</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
 
 			{/* Content */}
 			{isLoading ? (
-				<div className="text-gray-400 text-sm py-10 items-center">
+				<div className="text-muted-foreground text-sm py-10 items-center">
 					Loading tenants...
 				</div>
 			) : tenants.length === 0 ? (
@@ -138,29 +123,29 @@ function TenantsPage() {
 				/>
 			) : (
 				<>
-					<div className="border border-zinc-800 rounded-lg overflow-hidden">
+					<div className="border border-border rounded-lg overflow-hidden">
 						<table className="w-full text-sm">
 							<thead>
-								<tr className="border-b border-zinc-800 bg-zinc-900/50">
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
+								<tr className="border-b border-border bg-muted/50">
+									<th className="text-left px-4 py-3 text-muted-foreground font-medium">
 										Name
 									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
+									<th className="text-left px-4 py-3 text-muted-foreground font-medium">
 										Phone
 									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
+									<th className="text-left px-4 py-3 text-muted-foreground font-medium">
 										Room
 									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
+									<th className="text-left px-4 py-3 text-muted-foreground font-medium">
 										Property
 									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
+									<th className="text-left px-4 py-3 text-muted-foreground font-medium">
 										Move-in
 									</th>
-									<th className="text-left px-4 py-3 text-gray-400 font-medium">
+									<th className="text-left px-4 py-3 text-muted-foreground font-medium">
 										Status
 									</th>
-									<th className="text-right px-4 py-3 text-gray-400 font-medium">
+									<th className="text-right px-4 py-3 text-muted-foreground font-medium">
 										Actions
 									</th>
 								</tr>
@@ -170,49 +155,45 @@ function TenantsPage() {
 									<tr
 										key={t.id}
 										className={[
-											"border-b border-zinc-800 last:border-0 transition-colors",
+											"border-b border-border last:border-0 transition-colors",
 											t.status === "inactive"
 												? "opacity-50"
-												: "hover:bg-zinc-800/40",
-											i % 2 === 0 ? "bg-zinc-900" : "bg-zinc-900/60",
+												: "hover:bg-accent/50",
+											i % 2 === 0 ? "bg-card" : "bg-muted/30",
 										].join(" ")}
 									>
 										<td className="px-4 py-3">
 											<Link
 												to="/dashboard/tenants/$tenantId"
 												params={{ tenantId: t.id }}
-												className="text-white hover:text-blue-400 font-medium transition-colors"
+												className="hover:text-primary font-medium transition-colors"
 											>
 												{t.name}
 											</Link>
 										</td>
-										<td className="px-4 py-3 text-gray-300">
+										<td className="px-4 py-3 text-muted-foreground">
 											<span className="flex items-center gap-1.5">
-												<Phone className="w-3 h-3 text-gray-500" />
+												<Phone className="w-3 h-3" />
 												{t.phone}
 											</span>
 										</td>
-										<td className="px-4 py-3 text-gray-300">
+										<td className="px-4 py-3 text-muted-foreground">
 											<span className="flex items-center gap-1.5">
-												<Home className="w-3 h-3 text-gray-500" />
+												<Home className="w-3 h-3" />
 												{t.roomNumber}
 											</span>
 										</td>
-										<td className="px-4 py-3 text-gray-400">
+										<td className="px-4 py-3 text-muted-foreground">
 											{t.propertyName}
 										</td>
-										<td className="px-4 py-3 text-gray-400">
+										<td className="px-4 py-3 text-muted-foreground">
 											{formatDate(t.moveInDate)}
 										</td>
 										<td className="px-4 py-3">
 											{t.status === "active" ? (
-												<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
-													Active
-												</Badge>
+												<Badge variant="success">Active</Badge>
 											) : (
-												<Badge className="bg-zinc-800 text-gray-400 border border-zinc-700 hover:bg-zinc-800">
-													Inactive
-												</Badge>
+												<Badge variant="secondary">Inactive</Badge>
 											)}
 										</td>
 										<td className="px-4 py-3">
@@ -220,7 +201,7 @@ function TenantsPage() {
 												<Button
 													variant="ghost"
 													size="sm"
-													className="text-gray-400 hover:text-white hover:bg-zinc-700"
+													className="text-muted-foreground hover:text-foreground hover:bg-accent"
 													asChild
 												>
 													<Link
@@ -242,15 +223,18 @@ function TenantsPage() {
 						</table>
 					</div>
 
-					{/* Pagination footer, cuma ditampilkan jika memang data lebih dari entri maksimum yaitu PAGE_SIZE */}
+					{/* Pagination footer */}
 					{meta && meta.total > PAGE_SIZE && (
 						<div className="flex items-center justify-between text-sm">
-							<p className="text-gray-400">
+							<p className="text-muted-foreground">
 								Showing{" "}
-								<span className="text-white font-medium">
+								<span className="text-foreground font-medium">
 									{from}–{to}
 								</span>{" "}
-								of <span className="text-white font-medium">{meta.total}</span>{" "}
+								of{" "}
+								<span className="text-foreground font-medium">
+									{meta.total}
+								</span>{" "}
 								tenants
 							</p>
 
@@ -258,7 +242,7 @@ function TenantsPage() {
 								<Button
 									variant="ghost"
 									size="sm"
-									className="text-gray-400 hover:text-white hover:bg-zinc-800 gap-1"
+									className="text-muted-foreground hover:text-foreground hover:bg-accent gap-1"
 									onClick={() => setPage((p) => p - 1)}
 									disabled={page <= 1}
 								>
@@ -266,14 +250,14 @@ function TenantsPage() {
 									Prev
 								</Button>
 
-								<span className="text-gray-400 tabular-nums">
+								<span className="text-muted-foreground tabular-nums">
 									{page} / {totalPages}
 								</span>
 
 								<Button
 									variant="ghost"
 									size="sm"
-									className="text-gray-400 hover:text-white hover:bg-zinc-800 gap-1"
+									className="text-muted-foreground hover:text-foreground hover:bg-accent gap-1"
 									onClick={() => setPage((p) => p + 1)}
 									disabled={page >= totalPages}
 								>

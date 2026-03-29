@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { getOwnerFn } from "@/modules/owner/serverFn";
 import { logoutFn } from "@/modules/auth/serverFn";
-import { useRouter } from "@tanstack/react-router";
+import { useRouter, Link } from "@tanstack/react-router";
+import { Badge } from "@/components/ui/badge";
 
 export function AppSidebar() {
   const router = useRouter();
@@ -17,70 +18,64 @@ export function AppSidebar() {
   };
 
   return (
-    <div className="flex h-full flex-col p-4 gap-2 text-gray-200">
+    <div className="flex h-full flex-col p-4 gap-2 text-sidebar-foreground">
       {/* MENU ATAS */}
-      <a
-        href="/dashboard"
-        className="block p-2 rounded hover:bg-white hover:text-black transition-colors"
+      <Link
+        to="/dashboard"
+        className="block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
       >
         Dashboard
-      </a>
-      <a
-        href="/dashboard/properties"
-        className="block p-2 rounded hover:bg-white hover:text-black transition-colors"
+      </Link>
+      <Link
+        to="/dashboard/properties"
+        className="block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
       >
         Properties
-      </a>
-      <a
-        href="/dashboard/tenants"
-        className="block p-2 rounded hover:bg-white hover:text-black transition-colors"
+      </Link>
+      <Link
+        to="/dashboard/tenants"
+        className="block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
       >
         Tenants
-      </a>
-      <a
-        href="/dashboard/payments"
-        className="block p-2 rounded hover:bg-white hover:text-black transition-colors"
+      </Link>
+      <Link
+        to="/dashboard/payments"
+        className="block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
       >
         Payments
-      </a>
-      <a
-        href="/dashboard/reports"
-        className="block p-2 rounded hover:bg-white hover:text-black transition-colors"
+      </Link>
+      <Link
+        to="/dashboard/reports"
+        className="block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
       >
         Reports
-      </a>
+      </Link>
 
       {/* FOOTER */}
-      <div className="mt-auto flex flex-col gap-3 pt-4 border-t border-zinc-700">
+      <div className="mt-auto flex flex-col gap-3 pt-4 border-t border-sidebar-border">
         {/* Owner Info */}
         <div className="text-sm">
           <p className="font-medium">{owner?.name || "Loading..."}</p>
-          <p className="text-gray-400 text-xs">{owner?.email}</p>
+          <p className="text-muted-foreground text-xs">{owner?.email}</p>
         </div>
 
         {/* Plan Badge */}
-        <span
-          className={`text-xs font-semibold px-2 py-1 rounded w-fit uppercase ${
-            owner?.plan === "paid"
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
+        <Badge variant={owner?.plan === "paid" ? "success" : "secondary"} className="w-fit uppercase">
           {owner?.plan || "Free"}
-        </span>
+        </Badge>
 
         {/* Profile */}
-        <a
-          href="/dashboard/profile"
-          className="block p-2 rounded hover:bg-white hover:text-black transition-colors"
+        <Link
+          to="/dashboard/profile"
+          className="block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
         >
           Profile
-        </a>
+        </Link>
 
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="text-left block p-2 rounded hover:bg-white hover:text-black transition-colors"
+          className="text-left block p-2 rounded hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
         >
           Logout
         </button>
