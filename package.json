@@ -81,8 +81,5 @@
 			"lightningcss",
 			"prisma"
 		]
-	},
-	"prisma": {
-		"seed": "node --import tsx prisma/seed.ts"
 	}
 }

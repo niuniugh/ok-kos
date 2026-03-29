@@ -3,11 +3,6 @@ generator client {
   output   = "../generated/prisma"
 }
 
-generator seed {
-  provider = "prisma-db-seed"
-  output   = "../prisma/seed.ts"
-}
-
 datasource db {
   provider = "postgresql"
 }
