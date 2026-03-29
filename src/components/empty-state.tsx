@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +40,7 @@ export function EmptyState({
 				<EmptyContent>
 					{actionHref ? (
 						<Button asChild>
-							<a href={actionHref}>{actionLabel}</a>
+							<Link to={actionHref}>{actionLabel}</Link>
 						</Button>
 					) : (
 						<Button onClick={onAction}>{actionLabel}</Button>
