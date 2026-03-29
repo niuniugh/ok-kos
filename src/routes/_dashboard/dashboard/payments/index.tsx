@@ -10,7 +10,6 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +21,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { parseServerError } from "@/lib/utils";
 import {
 	createPaymentFn,
@@ -104,22 +104,22 @@ function PaymentsPage() {
 		{
 			label: "Total Tenants",
 			value: summary?.totalTenants ?? 0,
-			color: "text-white",
+			color: "text-foreground",
 		},
 		{
 			label: "Paid",
 			value: summary?.paidCount ?? 0,
-			color: "text-green-400",
+			color: "text-success",
 		},
 		{
 			label: "Unpaid",
 			value: summary?.unpaidCount ?? 0,
-			color: "text-red-400",
+			color: "text-destructive",
 		},
 		{
 			label: "Collected",
 			value: `${formatIDR(summary?.totalCollected ?? 0)} / ${formatIDR(summary?.totalDue ?? 0)}`,
-			color: "text-white",
+			color: "text-foreground",
 		},
 	];
 
@@ -128,8 +128,10 @@ function PaymentsPage() {
 			{/* Header */}
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h1 className="text-2xl font-bold text-white">Payments</h1>
-					<p className="text-gray-400">Manage monthly rent collection</p>
+					<h1 className="text-2xl font-bold">Payments</h1>
+					<p className="text-muted-foreground">
+						Manage monthly rent collection
+					</p>
 				</div>
 
 				<div className="flex items-center gap-3">
@@ -158,17 +160,17 @@ function PaymentsPage() {
 						<button
 							type="button"
 							onClick={() => setMonth((m) => shiftMonth(m, -1))}
-							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+							className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground"
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</button>
-						<span className="w-32 text-center text-sm text-gray-300">
+						<span className="w-32 text-center text-sm text-muted-foreground">
 							{formatMonth(month)}
 						</span>
 						<button
 							type="button"
 							onClick={() => setMonth((m) => shiftMonth(m, 1))}
-							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+							className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground"
 						>
 							<ChevronRight className="h-4 w-4" />
 						</button>
@@ -181,7 +183,9 @@ function PaymentsPage() {
 				{statCards.map(({ label, value, color }) => (
 					<Card key={label}>
 						<CardHeader>
-							<CardTitle className="text-sm text-gray-400">{label}</CardTitle>
+							<CardTitle className="text-sm text-muted-foreground">
+								{label}
+							</CardTitle>
 						</CardHeader>
 						<CardContent>
 							{isLoading ? (
@@ -200,10 +204,10 @@ function PaymentsPage() {
 					placeholder="Search tenant..."
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
-					className="w-48 bg-zinc-900 border-zinc-700 text-white placeholder:text-gray-500"
+					className="w-48"
 				/>
 				<Select value={statusFilter} onValueChange={setStatusFilter}>
-					<SelectTrigger className="w-36 bg-zinc-900 border-zinc-700 text-white">
+					<SelectTrigger className="w-36">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
@@ -241,17 +245,21 @@ function PaymentsPage() {
 						return (
 							<div
 								key={t.tenantId}
-								className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:flex-row sm:items-center sm:justify-between"
+								className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
 							>
 								{/* Left: tenant info */}
 								<div className="min-w-0 flex-1">
 									<div className="flex items-center gap-2">
-										<span className="font-medium text-white truncate">
-											{t.tenantName}
-										</span>
-										<StatusBadge status={t.status} />
+										<span className="font-medium truncate">{t.tenantName}</span>
+										<StatusBadge
+											status={
+												t.status === "no_record"
+													? "unpaid"
+													: (t.status as "paid" | "partial" | "unpaid")
+											}
+										/>
 									</div>
-									<p className="text-sm text-gray-400 mt-0.5">
+									<p className="text-sm text-muted-foreground mt-0.5">
 										Room {t.roomNumber} · {t.propertyName}
 									</p>
 								</div>
@@ -259,18 +267,14 @@ function PaymentsPage() {
 								{/* Middle: amounts */}
 								<div className="flex items-center gap-6 text-sm">
 									<div>
-										<p className="text-gray-500 text-xs">Due</p>
-										<p className="text-white font-medium">
-											{formatIDR(t.amountDue)}
-										</p>
+										<p className="text-muted-foreground text-xs">Due</p>
+										<p className="font-medium">{formatIDR(t.amountDue)}</p>
 									</div>
 									<div>
-										<p className="text-gray-500 text-xs">Paid</p>
+										<p className="text-muted-foreground text-xs">Paid</p>
 										<p
 											className={
-												isPaid
-													? "text-green-400 font-medium"
-													: "text-white font-medium"
+												isPaid ? "text-success font-medium" : "font-medium"
 											}
 										>
 											{formatIDR(t.amountPaid)}
@@ -278,8 +282,10 @@ function PaymentsPage() {
 									</div>
 									{!isPaid && t.amountDue - t.amountPaid > 0 && (
 										<div>
-											<p className="text-gray-500 text-xs">Outstanding</p>
-											<p className="text-red-400 font-medium">
+											<p className="text-muted-foreground text-xs">
+												Outstanding
+											</p>
+											<p className="text-destructive font-medium">
 												{formatIDR(t.amountDue - t.amountPaid)}
 											</p>
 										</div>
@@ -291,7 +297,7 @@ function PaymentsPage() {
 									{!isPaid && (
 										<Button
 											size="sm"
-											className="bg-green-600 hover:bg-green-700 text-white"
+											className="bg-success hover:bg-success/90 text-success-foreground"
 											disabled={isMarking}
 											onClick={() => {
 												setMarkingPaidId(t.tenantId);
@@ -308,7 +314,7 @@ function PaymentsPage() {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-gray-400 hover:text-white hover:bg-zinc-700"
+										className="text-muted-foreground hover:text-foreground hover:bg-accent"
 										onClick={() =>
 											setEditPayment({
 												id: t.paymentId ?? "",
@@ -344,27 +350,5 @@ function PaymentsPage() {
 				/>
 			)}
 		</div>
-	);
-}
-
-function StatusBadge({ status }: { status: string }) {
-	if (status === "paid") {
-		return (
-			<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
-				Paid
-			</Badge>
-		);
-	}
-	if (status === "partial") {
-		return (
-			<Badge className="bg-yellow-900/60 text-yellow-400 border border-yellow-800 hover:bg-yellow-900/60">
-				Partial
-			</Badge>
-		);
-	}
-	return (
-		<Badge className="bg-red-900/60 text-red-400 border border-red-800 hover:bg-red-900/60">
-			Unpaid
-		</Badge>
 	);
 }

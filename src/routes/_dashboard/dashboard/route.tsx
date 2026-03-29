@@ -12,7 +12,7 @@ function DashboardLayout() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+		<div className="flex min-h-screen bg-background">
 			{/* OVERLAY (mobile) */}
 			{isMobile && open && (
 				<button
@@ -25,7 +25,7 @@ function DashboardLayout() {
 			{/* SIDEBAR */}
 			<div
 				className={`
-          fixed z-50 h-full w-64 bg-black dark:bg-gray-800 border-r border-zinc-800 p-4
+          fixed z-50 h-full w-64 bg-sidebar border-r border-sidebar-border p-4
           transition-transform duration-300
           ${isMobile ? (open ? "translate-x-0" : "-translate-x-full") : "translate-x-0"}
         `}
@@ -42,7 +42,7 @@ function DashboardLayout() {
 					<button
 						type="button"
 						onClick={() => setOpen(true)}
-						className="mb-4 px-3 py-2 bg-zinc-800 text-white rounded shadow-md"
+						className="mb-4 px-3 py-2 bg-secondary text-secondary-foreground rounded shadow-md"
 					>
 						☰ Menu
 					</button>

@@ -82,7 +82,6 @@ export function CreateTenantDialog({
 		const phone = (fd.get("phone") as string).trim();
 		const moveInDate = fd.get("moveInDate") as string;
 
-		// roomId comes from shadcn Select (not FormData) — validate it explicitly
 		if (!roomId) {
 			setError("Please select a room.");
 			return;
@@ -98,39 +97,35 @@ export function CreateTenantDialog({
 				if (!o) handleClose();
 			}}
 		>
-			<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
+			<DialogContent className="bg-card border-border text-card-foreground sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle className="text-white">Add Tenant</DialogTitle>
+					<DialogTitle>Add Tenant</DialogTitle>
 					<DialogDescription>Add a new tenant to a room.</DialogDescription>
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4 pt-1">
 					{error && (
-						<p className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-md px-3 py-2">
+						<p className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">
 							{error}
 						</p>
 					)}
 
 					{/* Property selector */}
 					<div className="space-y-1.5">
-						<Label className="text-gray-300">Property</Label>
+						<Label>Property</Label>
 						<Select
 							value={propertyId}
 							onValueChange={(v) => {
 								setPropertyId(v);
-								setRoomId(""); // reset room when property changes
+								setRoomId("");
 							}}
 						>
-							<SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+							<SelectTrigger>
 								<SelectValue placeholder="Select property" />
 							</SelectTrigger>
-							<SelectContent className="bg-zinc-800 border-zinc-700">
+							<SelectContent>
 								{properties.map((p) => (
-									<SelectItem
-										key={p.id}
-										value={p.id}
-										className="text-white focus:bg-zinc-700"
-									>
+									<SelectItem key={p.id} value={p.id}>
 										{p.name}
 									</SelectItem>
 								))}
@@ -140,13 +135,13 @@ export function CreateTenantDialog({
 
 					{/* Room selector */}
 					<div className="space-y-1.5">
-						<Label className="text-gray-300">Room (vacant only)</Label>
+						<Label>Room (vacant only)</Label>
 						<Select
 							value={roomId}
 							onValueChange={setRoomId}
 							disabled={!propertyId}
 						>
-							<SelectTrigger className="bg-zinc-800 border-zinc-700 text-white disabled:opacity-50">
+							<SelectTrigger className="disabled:opacity-50">
 								<SelectValue
 									placeholder={
 										!propertyId
@@ -157,18 +152,14 @@ export function CreateTenantDialog({
 									}
 								/>
 							</SelectTrigger>
-							<SelectContent className="bg-zinc-800 border-zinc-700">
+							<SelectContent>
 								{vacantRooms.length === 0 ? (
-									<div className="px-3 py-2 text-sm text-gray-400">
+									<div className="px-3 py-2 text-sm text-muted-foreground">
 										No vacant rooms available
 									</div>
 								) : (
 									vacantRooms.map((r) => (
-										<SelectItem
-											key={r.id}
-											value={r.id}
-											className="text-white focus:bg-zinc-700"
-										>
+										<SelectItem key={r.id} value={r.id}>
 											Room {r.roomNumber} — Rp{" "}
 											{r.rentPrice.toLocaleString("id-ID")}
 										</SelectItem>
@@ -179,48 +170,39 @@ export function CreateTenantDialog({
 					</div>
 
 					<div className="space-y-1.5">
-						<Label htmlFor="create-name" className="text-gray-300">
-							Full Name
-						</Label>
+						<Label htmlFor="create-name">Full Name</Label>
 						<Input
 							id="create-name"
 							name="name"
 							required
 							placeholder="e.g. Budi Santoso"
-							className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
 						/>
 					</div>
 
 					<div className="space-y-1.5">
-						<Label htmlFor="create-phone" className="text-gray-300">
-							Phone Number
-						</Label>
+						<Label htmlFor="create-phone">Phone Number</Label>
 						<Input
 							id="create-phone"
 							name="phone"
 							required
 							placeholder="e.g. 08123456789"
-							className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
 						/>
 					</div>
 
 					<div className="space-y-1.5">
-						<Label htmlFor="create-moveInDate" className="text-gray-300">
-							Move-in Date
-						</Label>
+						<Label htmlFor="create-moveInDate">Move-in Date</Label>
 						<Input
 							id="create-moveInDate"
 							name="moveInDate"
 							type="date"
 							min="2020-01-01"
 							required
-							className="bg-zinc-800 border-zinc-700 text-white"
 						/>
 					</div>
 
 					<Button
 						type="submit"
-						className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+						className="w-full"
 						disabled={mutation.isPending}
 					>
 						{mutation.isPending ? "Adding..." : "Add Tenant"}

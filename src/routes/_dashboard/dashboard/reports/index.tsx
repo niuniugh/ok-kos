@@ -12,7 +12,6 @@ import {
 	YAxis,
 } from "recharts";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -30,6 +29,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
 	Table,
 	TableBody,
@@ -100,12 +100,12 @@ function exportCSV(
 }
 
 const incomeChartConfig = {
-	totalCollected: { label: "Collected", color: "#22c55e" },
-	totalOutstanding: { label: "Outstanding", color: "#ef4444" },
+	totalCollected: { label: "Collected", color: "var(--chart-1)" },
+	totalOutstanding: { label: "Outstanding", color: "var(--chart-2)" },
 };
 
 const rateChartConfig = {
-	collectionRate: { label: "Collection Rate", color: "#3b82f6" },
+	collectionRate: { label: "Collection Rate", color: "var(--chart-3)" },
 };
 
 function ReportsPage() {
@@ -141,28 +141,26 @@ function ReportsPage() {
 		{
 			label: "Total Income (12mo)",
 			value: formatIDR(overall?.totalIncome ?? 0),
-			color: "text-white",
+			color: "text-foreground",
 		},
 		{
 			label: "Total Collected",
 			value: formatIDR(overall?.totalCollected ?? 0),
-			color: "text-green-400",
+			color: "text-success",
 		},
 		{
 			label: "Avg Collection Rate",
 			value: `${overall?.avgCollectionRate ?? 0}%`,
 			color:
 				(overall?.avgCollectionRate ?? 0) >= 80
-					? "text-green-400"
-					: "text-yellow-400",
+					? "text-success"
+					: "text-warning",
 		},
 		{
 			label: "Occupancy Rate",
 			value: `${overall?.occupancyRate ?? 0}%`,
 			color:
-				(overall?.occupancyRate ?? 0) >= 80
-					? "text-green-400"
-					: "text-yellow-400",
+				(overall?.occupancyRate ?? 0) >= 80 ? "text-success" : "text-warning",
 		},
 	];
 
@@ -171,8 +169,8 @@ function ReportsPage() {
 			{/* Header */}
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h1 className="text-2xl font-bold text-white">Reports</h1>
-					<p className="text-gray-400">12-month analytics overview</p>
+					<h1 className="text-2xl font-bold">Reports</h1>
+					<p className="text-muted-foreground">12-month analytics overview</p>
 				</div>
 
 				{properties.length > 1 && (
@@ -200,7 +198,9 @@ function ReportsPage() {
 				{statCards.map(({ label, value, color }) => (
 					<Card key={label}>
 						<CardHeader>
-							<CardTitle className="text-sm text-gray-400">{label}</CardTitle>
+							<CardTitle className="text-sm text-muted-foreground">
+								{label}
+							</CardTitle>
 						</CardHeader>
 						<CardContent>
 							{analyticsLoading ? (
@@ -216,7 +216,7 @@ function ReportsPage() {
 			{/* Collection Rate Chart */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">
+					<CardTitle className="text-sm text-muted-foreground">
 						Collection Rate Trend
 					</CardTitle>
 				</CardHeader>
@@ -234,8 +234,16 @@ function ReportsPage() {
 										x2="0"
 										y2="1"
 									>
-										<stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-										<stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+										<stop
+											offset="5%"
+											stopColor="var(--chart-3)"
+											stopOpacity={0.3}
+										/>
+										<stop
+											offset="95%"
+											stopColor="var(--chart-3)"
+											stopOpacity={0}
+										/>
 									</linearGradient>
 								</defs>
 								<CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -255,7 +263,7 @@ function ReportsPage() {
 								<Area
 									type="monotone"
 									dataKey="collectionRate"
-									stroke="#3b82f6"
+									stroke="var(--chart-3)"
 									fill="url(#collectionGradient)"
 									strokeWidth={2}
 								/>
@@ -268,7 +276,7 @@ function ReportsPage() {
 			{/* Monthly Income Chart */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">
+					<CardTitle className="text-sm text-muted-foreground">
 						Monthly Income
 					</CardTitle>
 				</CardHeader>
@@ -291,13 +299,13 @@ function ReportsPage() {
 								<Bar
 									dataKey="totalCollected"
 									stackId="income"
-									fill="#22c55e"
+									fill="var(--chart-1)"
 									radius={[0, 0, 0, 0]}
 								/>
 								<Bar
 									dataKey="totalOutstanding"
 									stackId="income"
-									fill="#ef4444"
+									fill="var(--chart-2)"
 									radius={[4, 4, 0, 0]}
 								/>
 							</BarChart>
@@ -309,13 +317,12 @@ function ReportsPage() {
 			{/* Monthly Breakdown Table */}
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle className="text-sm text-gray-400">
+					<CardTitle className="text-sm text-muted-foreground">
 						Monthly Breakdown
 					</CardTitle>
 					<div className="flex items-center gap-2">
-						{/* Property selector for breakdown (if not already filtered) */}
 						{!propertyId && properties.length > 0 && (
-							<p className="text-xs text-gray-500">
+							<p className="text-xs text-muted-foreground">
 								Select a property to view breakdown
 							</p>
 						)}
@@ -360,13 +367,13 @@ function ReportsPage() {
 				</CardHeader>
 				<CardContent>
 					{!propertyId ? (
-						<p className="py-4 text-center text-sm text-gray-500">
+						<p className="py-4 text-center text-sm text-muted-foreground">
 							Select a property above to view the detailed breakdown.
 						</p>
 					) : reportLoading ? (
 						<Skeleton className="h-40 w-full" />
 					) : !report?.breakdown.length ? (
-						<p className="py-4 text-center text-sm text-gray-500">
+						<p className="py-4 text-center text-sm text-muted-foreground">
 							No payment data for this period.
 						</p>
 					) : (
@@ -398,7 +405,9 @@ function ReportsPage() {
 											{formatIDR(r.outstanding)}
 										</TableCell>
 										<TableCell>
-											<StatusBadge status={r.status} />
+											<StatusBadge
+												status={r.status as "paid" | "partial" | "unpaid"}
+											/>
 										</TableCell>
 									</TableRow>
 								))}
@@ -425,27 +434,5 @@ function ReportsPage() {
 				</CardContent>
 			</Card>
 		</div>
-	);
-}
-
-function StatusBadge({ status }: { status: string }) {
-	if (status === "paid") {
-		return (
-			<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
-				Paid
-			</Badge>
-		);
-	}
-	if (status === "partial") {
-		return (
-			<Badge className="bg-yellow-900/60 text-yellow-400 border border-yellow-800 hover:bg-yellow-900/60">
-				Partial
-			</Badge>
-		);
-	}
-	return (
-		<Badge className="bg-red-900/60 text-red-400 border border-red-800 hover:bg-red-900/60">
-			Unpaid
-		</Badge>
 	);
 }

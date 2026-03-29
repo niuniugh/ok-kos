@@ -32,13 +32,17 @@ function TenantDetailPage() {
 	const tenant = data?.tenant;
 
 	if (isLoading) {
-		return <div className="text-gray-400 text-sm py-10">Loading tenant...</div>;
+		return (
+			<div className="text-muted-foreground text-sm py-10">
+				Loading tenant...
+			</div>
+		);
 	}
 
 	if (!tenant) {
 		return (
 			<div className="py-10">
-				<p className="text-red-400 text-sm">Tenant not found.</p>
+				<p className="text-destructive text-sm">Tenant not found.</p>
 			</div>
 		);
 	}
@@ -49,7 +53,7 @@ function TenantDetailPage() {
 			<Button
 				variant="ghost"
 				size="sm"
-				className="text-gray-400 hover:text-white hover:bg-zinc-800 -ml-2"
+				className="text-muted-foreground hover:text-foreground hover:bg-accent -ml-2"
 				asChild
 			>
 				<Link to="/dashboard/tenants">
@@ -61,29 +65,22 @@ function TenantDetailPage() {
 			{/* Header */}
 			<div className="flex items-start justify-between gap-4">
 				<div>
-					<h1 className="text-2xl font-bold text-white">{tenant.name}</h1>
-					<p className="text-gray-400 text-sm mt-0.5">
+					<h1 className="text-2xl font-bold">{tenant.name}</h1>
+					<p className="text-muted-foreground text-sm mt-0.5">
 						Tenant since {formatDate(tenant.moveInDate, "long")}
 					</p>
 				</div>
 
 				<div className="flex items-center gap-2 shrink-0">
 					{tenant.status === "active" ? (
-						<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
-							Active
-						</Badge>
+						<Badge variant="success">Active</Badge>
 					) : (
-						<Badge className="bg-zinc-800 text-gray-400 border border-zinc-700 hover:bg-zinc-800">
-							Inactive
-						</Badge>
+						<Badge variant="secondary">Inactive</Badge>
 					)}
 
 					{tenant.status === "active" && (
 						<>
-							{/* Edit button */}
 							<EditTenantDialog tenant={tenant} />
-
-							{/* Move Out */}
 							<MoveOutDialog
 								tenant={{ ...tenant, roomNumber: tenant.room.roomNumber }}
 							/>
@@ -124,16 +121,12 @@ function TenantDetailPage() {
 
 			{/* Payment history */}
 			<div>
-				<h2 className="text-lg font-semibold text-white mb-4">
-					Payment History
-				</h2>
+				<h2 className="text-lg font-semibold mb-4">Payment History</h2>
 				<PaymentHistory tenantId={tenantId} />
 			</div>
 		</div>
 	);
 }
-
-// ── InfoCard ──────────────────────────────────────────────────────────────
 
 function InfoCard({
 	icon: Icon,
@@ -145,12 +138,12 @@ function InfoCard({
 	value: string;
 }) {
 	return (
-		<div className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 space-y-1">
-			<div className="flex items-center gap-1.5 text-gray-500 text-xs">
+		<div className="bg-card border border-border rounded-lg px-4 py-3 space-y-1">
+			<div className="flex items-center gap-1.5 text-muted-foreground text-xs">
 				<Icon className="w-3 h-3" />
 				{label}
 			</div>
-			<p className="text-white text-sm font-medium">{value}</p>
+			<p className="text-sm font-medium">{value}</p>
 		</div>
 	);
 }

@@ -66,7 +66,7 @@ export function EditTenantDialog({ tenant, onSuccess }: EditTenantDialogProps) {
 			<Button
 				variant="ghost"
 				size="sm"
-				className="text-gray-400 hover:text-white hover:bg-zinc-800"
+				className="text-muted-foreground hover:text-foreground hover:bg-accent"
 				onClick={() => {
 					setError("");
 					setOpen(true);
@@ -83,9 +83,9 @@ export function EditTenantDialog({ tenant, onSuccess }: EditTenantDialogProps) {
 					setOpen(o);
 				}}
 			>
-				<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
+				<DialogContent className="bg-card border-border text-card-foreground sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="text-white">Edit Tenant</DialogTitle>
+						<DialogTitle>Edit Tenant</DialogTitle>
 						<DialogDescription>Update tenant information.</DialogDescription>
 					</DialogHeader>
 
@@ -95,41 +95,33 @@ export function EditTenantDialog({ tenant, onSuccess }: EditTenantDialogProps) {
 						className="space-y-4 pt-1"
 					>
 						{error && (
-							<p className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-md px-3 py-2">
+							<p className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">
 								{error}
 							</p>
 						)}
 
 						<div className="space-y-1.5">
-							<Label htmlFor="edit-name" className="text-gray-300">
-								Full Name
-							</Label>
+							<Label htmlFor="edit-name">Full Name</Label>
 							<Input
 								id="edit-name"
 								name="name"
 								required
 								defaultValue={tenant.name}
-								className="bg-zinc-800 border-zinc-700 text-white"
 							/>
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="edit-phone" className="text-gray-300">
-								Phone Number
-							</Label>
+							<Label htmlFor="edit-phone">Phone Number</Label>
 							<Input
 								id="edit-phone"
 								name="phone"
 								required
 								defaultValue={tenant.phone}
-								className="bg-zinc-800 border-zinc-700 text-white"
 							/>
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="edit-moveInDate" className="text-gray-300">
-								Move-in Date
-							</Label>
+							<Label htmlFor="edit-moveInDate">Move-in Date</Label>
 							<Input
 								id="edit-moveInDate"
 								name="moveInDate"
@@ -137,13 +129,12 @@ export function EditTenantDialog({ tenant, onSuccess }: EditTenantDialogProps) {
 								required
 								defaultValue={normalizedMoveInDate}
 								min="2020-01-01"
-								className="bg-zinc-800 border-zinc-700 text-white"
 							/>
 						</div>
 
 						<Button
 							type="submit"
-							className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+							className="w-full"
 							disabled={mutation.isPending}
 						>
 							{mutation.isPending ? "Saving..." : "Save Changes"}

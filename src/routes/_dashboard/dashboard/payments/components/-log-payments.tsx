@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -20,6 +19,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { parseServerError } from "@/lib/utils";
 import { createPaymentFn } from "@/modules/payment/serverFn";
 import { getTenantsFn } from "@/modules/tenant/serverFn";
@@ -105,10 +105,7 @@ export function LogPaymentDialog() {
 
 	return (
 		<>
-			<Button
-				className="bg-blue-600 hover:bg-blue-700 text-white"
-				onClick={() => setOpen(true)}
-			>
+			<Button onClick={() => setOpen(true)}>
 				<PlusIcon className="w-4 h-4 mr-2" />
 				Log Payment
 			</Button>
@@ -119,9 +116,9 @@ export function LogPaymentDialog() {
 					if (!o) handleClose();
 				}}
 			>
-				<DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
+				<DialogContent className="bg-card border-border text-card-foreground sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="text-white">Log Payment</DialogTitle>
+						<DialogTitle>Log Payment</DialogTitle>
 						<DialogDescription>
 							Record a payment for a tenant.
 						</DialogDescription>
@@ -129,24 +126,20 @@ export function LogPaymentDialog() {
 
 					<form onSubmit={handleSubmit} className="space-y-4 pt-1">
 						{error && (
-							<p className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-md px-3 py-2">
+							<p className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">
 								{error}
 							</p>
 						)}
 
 						<div className="space-y-1.5">
-							<Label className="text-gray-300">Tenant</Label>
+							<Label>Tenant</Label>
 							<Select value={tenantId} onValueChange={handleTenantChange}>
-								<SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+								<SelectTrigger>
 									<SelectValue placeholder="Select tenant" />
 								</SelectTrigger>
-								<SelectContent className="bg-zinc-800 border-zinc-700">
+								<SelectContent>
 									{activeTenants.map((t) => (
-										<SelectItem
-											key={t.id}
-											value={t.id}
-											className="text-white focus:bg-zinc-700"
-										>
+										<SelectItem key={t.id} value={t.id}>
 											{t.name} — Room {t.roomNumber}
 										</SelectItem>
 									))}
@@ -155,23 +148,18 @@ export function LogPaymentDialog() {
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="log-month" className="text-gray-300">
-								Month
-							</Label>
+							<Label htmlFor="log-month">Month</Label>
 							<Input
 								id="log-month"
 								name="month"
 								type="month"
 								required
 								defaultValue={currentMonth()}
-								className="bg-zinc-800 border-zinc-700 text-white"
 							/>
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="log-amountDue" className="text-gray-300">
-								Amount Due (IDR)
-							</Label>
+							<Label htmlFor="log-amountDue">Amount Due (IDR)</Label>
 							<Input
 								id="log-amountDue"
 								name="amountDue"
@@ -185,14 +173,11 @@ export function LogPaymentDialog() {
 									if (amountPaid > newDue) setAmountPaid(newDue);
 								}}
 								placeholder="e.g. 1500000"
-								className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
 							/>
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="log-amountPaid" className="text-gray-300">
-								Amount Paid (IDR)
-							</Label>
+							<Label htmlFor="log-amountPaid">Amount Paid (IDR)</Label>
 							<Input
 								id="log-amountPaid"
 								name="amountPaid"
@@ -203,10 +188,9 @@ export function LogPaymentDialog() {
 								value={amountPaid || ""}
 								onChange={(e) => setAmountPaid(Number(e.target.value))}
 								placeholder="e.g. 1500000"
-								className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
 							/>
 							{amountDue > 0 && (
-								<p className="text-xs text-gray-500">
+								<p className="text-xs text-muted-foreground">
 									Max: {formatIDR(amountDue)}
 								</p>
 							)}
@@ -214,23 +198,11 @@ export function LogPaymentDialog() {
 
 						{amountDue > 0 && (
 							<div className="space-y-1.5">
-								<Label className="text-gray-300">Status</Label>
+								<Label>Status</Label>
 								<div className="flex items-center gap-3 py-1">
-									{derivedStatus === "paid" ? (
-										<Badge className="bg-green-900/60 text-green-400 border border-green-800 hover:bg-green-900/60">
-											Paid
-										</Badge>
-									) : derivedStatus === "partial" ? (
-										<Badge className="bg-yellow-900/60 text-yellow-400 border border-yellow-800 hover:bg-yellow-900/60">
-											Partial
-										</Badge>
-									) : (
-										<Badge className="bg-red-900/60 text-red-400 border border-red-800 hover:bg-red-900/60">
-											Unpaid
-										</Badge>
-									)}
+									<StatusBadge status={derivedStatus} />
 									{derivedStatus === "partial" && (
-										<span className="text-xs text-gray-400">
+										<span className="text-xs text-muted-foreground">
 											Outstanding: {formatIDR(amountDue - amountPaid)}
 										</span>
 									)}
@@ -240,7 +212,7 @@ export function LogPaymentDialog() {
 
 						<Button
 							type="submit"
-							className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+							className="w-full"
 							disabled={mutation.isPending || !tenantId || amountDue <= 0}
 						>
 							{mutation.isPending ? "Logging..." : "Log Payment"}

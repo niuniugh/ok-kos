@@ -229,11 +229,13 @@ function PropertyDetailPage() {
 	};
 
 	if (isPropertyLoading || isRoomsLoading) {
-		return <div className="text-gray-400">Loading property details...</div>;
+		return (
+			<div className="text-muted-foreground">Loading property details...</div>
+		);
 	}
 
 	if (!property) {
-		return <div className="text-red-400">Property not found</div>;
+		return <div className="text-destructive">Property not found</div>;
 	}
 
 	return (
@@ -249,8 +251,8 @@ function PropertyDetailPage() {
 						<ArrowLeft className="h-4 w-4" />
 					</Button>
 					<div>
-						<h1 className="text-2xl font-bold text-white">{property.name}</h1>
-						<p className="text-gray-400">{property.address}</p>
+						<h1 className="text-2xl font-bold">{property.name}</h1>
+						<p className="text-muted-foreground">{property.address}</p>
 					</div>
 				</div>
 
@@ -274,8 +276,8 @@ function PropertyDetailPage() {
 						variant={rooms.length >= 10 ? "destructive" : "default"}
 						className={
 							rooms.length >= 10
-								? "border-red-500/50 bg-red-500/10"
-								: "border-yellow-500/50 bg-yellow-500/10 text-yellow-200"
+								? "border-destructive/50 bg-destructive/10"
+								: "border-warning/50 bg-warning/10 text-warning"
 						}
 					>
 						<AlertTriangle className="h-4 w-4" />
@@ -292,10 +294,10 @@ function PropertyDetailPage() {
 					</Alert>
 				)}
 
-				<Card className="bg-zinc-900 border-zinc-800">
+				<Card>
 					<CardHeader className="flex flex-row items-center justify-between">
 						<div>
-							<CardTitle className="text-white">Rooms</CardTitle>
+							<CardTitle>Rooms</CardTitle>
 							<CardDescription>
 								Manage rooms for {property.name}
 							</CardDescription>
@@ -323,10 +325,10 @@ function PropertyDetailPage() {
 								onAction={() => setIsCreateRoomOpen(true)}
 							/>
 						) : (
-							<div className="rounded-md border border-zinc-800">
+							<div className="rounded-md border border-border">
 								<Table>
 									<TableHeader>
-										<TableRow className="border-zinc-800 hover:bg-transparent">
+										<TableRow className="hover:bg-transparent">
 											<TableHead>Room Number</TableHead>
 											<TableHead>Rent Price</TableHead>
 											<TableHead>Status</TableHead>
@@ -335,25 +337,17 @@ function PropertyDetailPage() {
 									</TableHeader>
 									<TableBody>
 										{rooms.map((room) => (
-											<TableRow
-												key={room.id}
-												className="border-zinc-800 hover:bg-zinc-800/50"
-											>
-												<TableCell className="font-medium text-white">
+											<TableRow key={room.id} className="hover:bg-accent/50">
+												<TableCell className="font-medium">
 													{room.roomNumber}
 												</TableCell>
-												<TableCell className="text-gray-300">
+												<TableCell className="text-muted-foreground">
 													Rp {room.rentPrice.toLocaleString("id-ID")}
 												</TableCell>
 												<TableCell>
 													<Badge
 														variant={
-															room.status === "vacant" ? "secondary" : "default"
-														}
-														className={
-															room.status === "vacant"
-																? "bg-green-500/10 text-green-400 hover:bg-green-500/20"
-																: "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+															room.status === "vacant" ? "success" : "default"
 														}
 													>
 														{room.status === "vacant" ? "Vacant" : "Occupied"}
@@ -377,7 +371,7 @@ function PropertyDetailPage() {
 														<Button
 															variant="ghost"
 															size="icon"
-															className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+															className="text-destructive hover:text-destructive hover:bg-destructive/10"
 															onClick={() => setDeletingRoomId(room.id)}
 														>
 															<Trash2 className="h-4 w-4" />
@@ -464,7 +458,7 @@ function PropertyDetailPage() {
 								handleDelete();
 							}}
 							disabled={deleteMutation.isPending}
-							className="bg-red-600 hover:bg-red-700 text-white"
+							className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
 						>
 							{deleteMutation.isPending ? "Deleting..." : "Delete Property"}
 						</AlertDialogAction>
@@ -597,7 +591,7 @@ function PropertyDetailPage() {
 								handleDeleteRoom();
 							}}
 							disabled={deleteRoomMutation.isPending}
-							className="bg-red-600 hover:bg-red-700 text-white"
+							className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
 						>
 							{deleteRoomMutation.isPending ? "Deleting..." : "Delete Room"}
 						</AlertDialogAction>
@@ -610,7 +604,7 @@ function PropertyDetailPage() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
-							<Info className="h-5 w-5 text-blue-400" />
+							<Info className="h-5 w-5 text-info" />
 							Upgrade Required
 						</DialogTitle>
 						<DialogDescription className="pt-4 text-base">

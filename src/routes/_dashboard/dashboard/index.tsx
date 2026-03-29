@@ -64,8 +64,8 @@ function formatMonthShort(month: string, endMonth: string) {
 }
 
 const chartConfig = {
-	collected: { label: "Collected", color: "#22c55e" },
-	outstanding: { label: "Outstanding", color: "#ef4444" },
+	collected: { label: "Collected", color: "var(--chart-1)" },
+	outstanding: { label: "Outstanding", color: "var(--chart-2)" },
 };
 
 function DashboardPage() {
@@ -95,9 +95,7 @@ function DashboardPage() {
 	if (!isLoading && summary && !summary.hasProperties) {
 		return (
 			<div className="space-y-6">
-				<h1 className="text-2xl font-bold text-white">
-					Hello, {summary.owner.name}!
-				</h1>
+				<h1 className="text-2xl font-bold">Hello, {summary.owner.name}!</h1>
 				<EmptyState
 					icon={Building2}
 					title="No properties yet"
@@ -133,7 +131,7 @@ function DashboardPage() {
 					{isLoading ? (
 						<Skeleton className="h-8 w-48" />
 					) : (
-						<h1 className="text-2xl font-bold text-white">
+						<h1 className="text-2xl font-bold">
 							Hello, {summary?.owner.name}!
 						</h1>
 					)}
@@ -167,17 +165,17 @@ function DashboardPage() {
 						<button
 							type="button"
 							onClick={() => setMonth((m) => shiftMonth(m, -1))}
-							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+							className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground"
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</button>
-						<span className="w-32 text-center text-sm text-gray-300">
+						<span className="w-32 text-center text-sm text-muted-foreground">
 							{formatMonth(month)}
 						</span>
 						<button
 							type="button"
 							onClick={() => setMonth((m) => shiftMonth(m, 1))}
-							className="rounded p-1 text-gray-400 transition hover:bg-zinc-800 hover:text-white"
+							className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground"
 						>
 							<ChevronRight className="h-4 w-4" />
 						</button>
@@ -190,13 +188,15 @@ function DashboardPage() {
 				{statCards.map(({ label, value }) => (
 					<Card key={label}>
 						<CardHeader>
-							<CardTitle className="text-sm text-gray-400">{label}</CardTitle>
+							<CardTitle className="text-sm text-muted-foreground">
+								{label}
+							</CardTitle>
 						</CardHeader>
 						<CardContent>
 							{isLoading ? (
 								<Skeleton className="h-8 w-16" />
 							) : (
-								<p className="text-2xl font-semibold text-white">{value}</p>
+								<p className="text-2xl font-semibold">{value}</p>
 							)}
 						</CardContent>
 					</Card>
@@ -206,7 +206,9 @@ function DashboardPage() {
 			{/* Income trend chart */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">Income Trend</CardTitle>
+					<CardTitle className="text-sm text-muted-foreground">
+						Income Trend
+					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					{chartLoading ? (
@@ -227,13 +229,13 @@ function DashboardPage() {
 								<Bar
 									dataKey="collected"
 									stackId="income"
-									fill={chartConfig.collected.color}
+									fill="var(--chart-1)"
 									radius={[0, 0, 0, 0]}
 								/>
 								<Bar
 									dataKey="outstanding"
 									stackId="income"
-									fill={chartConfig.outstanding.color}
+									fill="var(--chart-2)"
 									radius={[4, 4, 0, 0]}
 								/>
 							</BarChart>
@@ -245,7 +247,7 @@ function DashboardPage() {
 			{/* Overdue tenants table */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm text-gray-400">
+					<CardTitle className="text-sm text-muted-foreground">
 						Overdue Tenants
 					</CardTitle>
 				</CardHeader>
@@ -253,7 +255,7 @@ function DashboardPage() {
 					{isLoading ? (
 						<Skeleton className="h-24 w-full" />
 					) : !summary?.overdueTenants.length ? (
-						<p className="py-4 text-center text-sm text-gray-500">
+						<p className="py-4 text-center text-sm text-muted-foreground">
 							No overdue tenants this month.
 						</p>
 					) : (

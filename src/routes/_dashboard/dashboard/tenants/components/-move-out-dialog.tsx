@@ -52,28 +52,24 @@ export function MoveOutDialog({ tenant, onSuccess }: MoveOutTenantDialogProps) {
 				<Button
 					variant="ghost"
 					size="sm"
-					className="text-gray-400 hover:text-red-400 hover:bg-red-950/40"
+					className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
 				>
 					<LogOut className="w-3.5 h-3.5 mr-1" />
 					Move Out
 				</Button>
 			</AlertDialogTrigger>
-			<AlertDialogContent className="bg-zinc-900 border-zinc-800">
+			<AlertDialogContent className="bg-card border-border">
 				<AlertDialogHeader>
-					<AlertDialogTitle className="text-white">
-						Move out {tenant.name}?
-					</AlertDialogTitle>
-					<AlertDialogDescription className="text-gray-400">
+					<AlertDialogTitle>Move out {tenant.name}?</AlertDialogTitle>
+					<AlertDialogDescription>
 						This will mark the tenant as inactive and free up room{" "}
 						{tenant.roomNumber}. Their payment history will be preserved.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700">
-						Cancel
-					</AlertDialogCancel>
+					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<AlertDialogAction
-						className="bg-red-600 hover:bg-red-700 text-white"
+						className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
 						onClick={() => moveOutMutation.mutate(tenant.id)}
 					>
 						Confirm Move Out
