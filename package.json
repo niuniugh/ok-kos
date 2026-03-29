@@ -11,6 +11,7 @@
 		"lint:fix": "pnpx @biomejs/biome check --write --unsafe",
 		"prepare": "husky",
 		"db:migrate": "pnpm prisma migrate dev",
+		"db:seed": "pnpm prisma db seed",
 		"db:studio": "pnpm prisma studio",
 		"docker:up": "docker compose -f docker-compose.dev.yml up -d",
 		"docker:down": "docker compose -f docker-compose.dev.yml down"
@@ -66,6 +67,7 @@
 		"husky": "^9.1.7",
 		"jsdom": "^28.1.0",
 		"prisma": "^7.5.0",
+		"tsx": "^4.21.0",
 		"typescript": "^5.7.2",
 		"vite": "^7.3.1",
 		"vite-tsconfig-paths": "^5.1.4",
@@ -79,5 +81,8 @@
 			"lightningcss",
 			"prisma"
 		]
+	},
+	"prisma": {
+		"seed": "node --import tsx prisma/seed.ts"
 	}
 }
