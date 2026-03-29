@@ -14,7 +14,9 @@ for client_file in "$CLIENT_DIR"/*; do
   ext="${client_name##*.}"
   base=$(echo "$client_name" | sed "s/\(.*\)-[^-]*\.${ext}$/\1/")
   server_ref=$(grep -roh "${base}-[A-Za-z0-9_-]*\.${ext}" "$SERVER_DIR/assets/" 2>/dev/null | sort -u | head -1)
-  if [ -n "$server_ref" ] && [ "$server_ref" != "$client_name" ]; then
+  # Only patch if: server references a different name AND that server file does NOT exist on disk
+  # (if it exists on disk, the server build is self-consistent — don't overwrite with client name)
+  if [ -n "$server_ref" ] && [ "$server_ref" != "$client_name" ] && [ ! -f "$SERVER_DIR/assets/$server_ref" ]; then
     SED_SCRIPT="${SED_SCRIPT}s|${server_ref}|${client_name}|g;"
     echo "Pass1 patch: $server_ref -> $client_name"
   fi
